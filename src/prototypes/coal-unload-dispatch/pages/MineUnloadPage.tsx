@@ -5,10 +5,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     ChevronLeft,
     ChevronRight,
+    Eye,
     Inbox,
     MonitorCheck,
-    Eye,
     Plus,
+    RefreshCw,
     Search,
     Settings2,
     Trash2,
@@ -139,6 +140,7 @@ export default function MineUnloadPage() {
         { kind: 'new' } | { kind: 'edit'; rowId: string } | { kind: 'match'; rowId: string } | null
     >(null);
     const [pointPickValue, setPointPickValue] = useState('');
+    const [pointSearch, setPointSearch] = useState('');
 
     // 行编辑
     const [editingRow, setEditingRow] = useState<string | null>(null);
@@ -150,9 +152,10 @@ export default function MineUnloadPage() {
     const [dupModal, setDupModal] = useState<UnloadDetail | null>(null);
 
     // LED 预览（按进煤系统切换待卸车辆）
-    const [vehicles] = useState<InPlantVehicle[]>(() => buildInPlantVehicles());
+    const [vehicles, setVehicles] = useState<InPlantVehicle[]>(() => buildInPlantVehicles());
     const [ledPreviewOpen, setLedPreviewOpen] = useState(false);
     const [ledPreviewSystem, setLedPreviewSystem] = useState<IntakeSystem>('A');
+    const [pendingRefreshing, setPendingRefreshing] = useState(false);
 
     const pointByName = useMemo(() => new Map(points.map((p) => [p.name, p])), [points]);
     const newMine = newForm.mineId ? mineById(newForm.mineId) : undefined;
@@ -312,11 +315,20 @@ export default function MineUnloadPage() {
             setMatchRowPoint(pointPicker.rowId, pointPickValue);
         }
         setPointPicker(null);
+        setPointSearch('');
+    };
+
+    const openPointPicker = (
+        next: { kind: 'new' } | { kind: 'edit'; rowId: string } | { kind: 'match'; rowId: string },
+        currentValue: string,
+    ) => {
+        setPointPickValue(currentValue);
+        setPointSearch('');
+        setPointPicker(next);
     };
 
     const openPointPickerForNew = () => {
-        setPointPickValue(newPointName);
-        setPointPicker({ kind: 'new' });
+        openPointPicker({ kind: 'new' }, newPointName);
     };
 
     const saveNew = () => {
@@ -434,8 +446,7 @@ export default function MineUnloadPage() {
     };
 
     const openPointPickerForEdit = (r: UnloadDetail) => {
-        setPointPickValue(editingPoint);
-        setPointPicker({ kind: 'edit', rowId: r.id });
+        openPointPicker({ kind: 'edit', rowId: r.id }, editingPoint);
     };
 
     /* ---------- 删除 ---------- */
@@ -446,7 +457,17 @@ export default function MineUnloadPage() {
         setDeleteTarget(null);
     };
 
-    /* ---------- LED 预览 / 更新 ---------- */
+    /* ---------- LED 预览 / 更新 / 待卸刷新 ---------- */
+    const refreshPendingVehicles = () => {
+        if (pendingRefreshing) return;
+        setPendingRefreshing(true);
+        window.setTimeout(() => {
+            setVehicles(buildInPlantVehicles());
+            setPendingRefreshing(false);
+            message.success('已刷新待卸车辆统计');
+        }, 280);
+    };
+
     const openLedPreview = () => {
         setLedPreviewSystem('A');
         setLedPreviewOpen(true);
@@ -538,8 +559,11 @@ export default function MineUnloadPage() {
         return MINE_POINTS.filter((m) => (m.fullName + m.shortName + m.origin).includes(q));
     }, [mineSearch]);
 
-    const pointPickerTitle =
-        pointPicker?.kind === 'match' ? '选择卸煤点（自动匹配）' : pointPicker?.kind === 'edit' ? '选择卸煤点（行编辑）' : '选择卸煤点';
+    const pointSearchOptions = useMemo(() => {
+        const q = pointSearch.trim();
+        if (!q) return points;
+        return points.filter((p) => (p.name + p.coalYard + p.zone).includes(q));
+    }, [points, pointSearch]);
 
     return (
         <div className="cd-page">
@@ -577,6 +601,16 @@ export default function MineUnloadPage() {
                         B进煤系统 <strong>{pendingStats.B}</strong>
                     </span>
                     <span className="cd-stats-extra">共 {pendingStats.A + pendingStats.B} 辆（在厂状态：待卸煤）</span>
+                    <button
+                        type="button"
+                        className={`cd-icon-btn${pendingRefreshing ? ' is-spinning' : ''}`}
+                        onClick={refreshPendingVehicles}
+                        title="刷新待卸车辆"
+                        aria-label="刷新待卸车辆"
+                        disabled={pendingRefreshing}
+                    >
+                        <RefreshCw size={15} />
+                    </button>
                 </div>
 
                 <div className="cd-filter">
@@ -773,10 +807,7 @@ export default function MineUnloadPage() {
                                     <button
                                         type="button"
                                         className="cd-toolbtn"
-                                        onClick={() => {
-                                            setPointPickValue(m.pointName);
-                                            setPointPicker({ kind: 'match', rowId: m.detailId });
-                                        }}
+                                        onClick={() => openPointPicker({ kind: 'match', rowId: m.detailId }, m.pointName)}
                                     >
                                         {m.pointName || '选择卸煤点'}
                                         <ChevronRight size={14} />
@@ -891,15 +922,24 @@ export default function MineUnloadPage() {
                 </div>
             </Drawer>
 
-            {/* 选择卸煤点抽屉（新增 / 行编辑 / 自动匹配共用） */}
+            {/* 选择卸煤点抽屉（新增 / 行编辑 / 自动匹配共用，支持模糊搜索） */}
             <Drawer
                 open={!!pointPicker}
-                title={pointPickerTitle}
-                onClose={() => setPointPicker(null)}
+                title="选择卸煤点"
+                onClose={() => {
+                    setPointPicker(null);
+                    setPointSearch('');
+                }}
                 width={480}
                 footer={
                     <>
-                        <Button variant="default" onClick={() => setPointPicker(null)}>
+                        <Button
+                            variant="default"
+                            onClick={() => {
+                                setPointPicker(null);
+                                setPointSearch('');
+                            }}
+                        >
                             取消
                         </Button>
                         <Button variant="primary" onClick={confirmPointPicker} disabled={!pointPickValue}>
@@ -908,8 +948,12 @@ export default function MineUnloadPage() {
                     </>
                 }
             >
+                <div className="cd-search" style={{ width: '100%', marginBottom: 12 }}>
+                    <Search size={15} className="cd-search-icon" />
+                    <Input value={pointSearch} onChange={setPointSearch} placeholder="按卸煤点名称 / 煤场 / 分区模糊搜索" />
+                </div>
                 <div className="cd-picker">
-                    {points.map((p) => (
+                    {pointSearchOptions.map((p) => (
                         <div
                             key={p.id}
                             className={`cd-picker-item${pointPickValue === p.name ? ' is-selected' : ''}`}
@@ -924,6 +968,9 @@ export default function MineUnloadPage() {
                             </div>
                         </div>
                     ))}
+                    {pointSearchOptions.length === 0 ? (
+                        <Empty description="未找到匹配卸煤点" />
+                    ) : null}
                 </div>
             </Drawer>
 
@@ -991,7 +1038,7 @@ export default function MineUnloadPage() {
                 open={ledPreviewOpen}
                 title="LED 预览（在厂待卸车辆）"
                 onClose={() => setLedPreviewOpen(false)}
-                width={720}
+                width={960}
                 footer={
                     <Button variant="default" onClick={() => setLedPreviewOpen(false)}>
                         关闭
@@ -1024,34 +1071,36 @@ export default function MineUnloadPage() {
                 {ledPreviewRows.length === 0 ? (
                     <Empty description={`当前 ${ledPreviewSystem} 进煤系统暂无待卸车辆`} />
                 ) : (
-                    <table className="cd-table" style={{ marginTop: 12 }}>
-                        <thead>
-                            <tr>
-                                <th style={{ width: 48 }}>序号</th>
-                                <th>车牌号</th>
-                                <th>矿点名称（简称）</th>
-                                <th>矿点名称（全）</th>
-                                <th>进煤系统</th>
-                                <th>在厂状态</th>
-                                <th>入厂时间</th>
-                                <th>司机</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {ledPreviewRows.map((v, i) => (
-                                <tr className="cd-row" key={v.id}>
-                                    <td><span className="cd-cell-muted">{i + 1}</span></td>
-                                    <td className="cd-cell-strong cd-cell-mono">{v.plateNo}</td>
-                                    <td className="cd-td-key">{v.mineShortName || '—'}</td>
-                                    <td className="cd-td-key">{v.mineFullName}</td>
-                                    <td><Tag color="processing">{v.intakeSystem}进煤系统</Tag></td>
-                                    <td><Tag color="warning">{v.inPlantStatus}</Tag></td>
-                                    <td className="cd-cell-muted">{v.enteredAt}</td>
-                                    <td>{v.driverName}</td>
+                    <div className="cd-table-scroll cd-table-scroll-x cd-nowrap-table" style={{ marginTop: 12 }}>
+                        <table className="cd-table">
+                            <thead>
+                                <tr>
+                                    <th style={{ width: 48 }}>序号</th>
+                                    <th>车牌号</th>
+                                    <th>矿点名称（简称）</th>
+                                    <th>矿点名称（全）</th>
+                                    <th>进煤系统</th>
+                                    <th>在厂状态</th>
+                                    <th>入厂时间</th>
+                                    <th>司机</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {ledPreviewRows.map((v, i) => (
+                                    <tr className="cd-row" key={v.id}>
+                                        <td><span className="cd-cell-muted">{i + 1}</span></td>
+                                        <td className="cd-cell-strong cd-cell-mono">{v.plateNo}</td>
+                                        <td className="cd-td-key">{v.mineShortName || '—'}</td>
+                                        <td className="cd-td-key">{v.mineFullName}</td>
+                                        <td><Tag color="processing">{v.intakeSystem}进煤系统</Tag></td>
+                                        <td><Tag color="warning">{v.inPlantStatus}</Tag></td>
+                                        <td className="cd-cell-muted">{v.enteredAt}</td>
+                                        <td>{v.driverName}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </Drawer>
         </div>

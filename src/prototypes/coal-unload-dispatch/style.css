@@ -253,6 +253,42 @@ body,
     margin-left: 4px;
 }
 
+.cd-icon-btn {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--cd-border);
+    border-radius: var(--cd-radius-sm);
+    background: var(--cd-bg-container);
+    color: var(--cd-text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: none;
+}
+
+.cd-icon-btn:hover:not(:disabled) {
+    color: var(--cd-primary);
+    border-color: var(--cd-primary-border);
+    background: var(--cd-primary-bg);
+}
+
+.cd-icon-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.cd-icon-btn.is-spinning svg {
+    animation: cdSpin 0.7s linear infinite;
+}
+
+@keyframes cdSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* ============================ 分段 Tab（LED 预览进煤系统） ============================ */
 .cd-seg {
     display: inline-flex;
@@ -531,6 +567,18 @@ body,
     min-height: 0;
     min-width: 0;
     overflow: auto;
+}
+
+.cd-table-scroll-x {
+    flex: none;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.cd-nowrap-table .cd-table th,
+.cd-nowrap-table .cd-table td {
+    white-space: nowrap;
 }
 
 .cd-table {
