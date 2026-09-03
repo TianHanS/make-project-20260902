@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "axhub-make-client",
+  "repository": "https://github.com/lintendo/Axhub-Make/tree/main/client",
+  "templateUrl": "https://github.com/lintendo/Axhub-Make/releases/download/make-client-template-v0.1.20/axhub-make-client-template.zip",
+  "templateVersion": "0.1.20",
+  "project": {
+    "id": "make-project-20260902",
+    "name": "燃料集控平台"
+  }
+}

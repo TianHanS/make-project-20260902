@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>卸煤调度管理 · 主规格</title>
+  <style>
+    :root {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --primary: #1677ff;
+      --primary-ink: #0958d9;
+      --primary-soft: #e6f4ff;
+      --primary-surface: #f0f7ff;
+      --primary-border: #91caff;
+      --text: #222832;
+      --text-secondary: #4b5565;
+      --text-muted: #6f7888;
+      --text-placeholder: #8b94a3;
+      color: var(--text);
+      background: #f0f2f5;
+      scrollbar-gutter: stable;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px 20px 64px; }
+    .shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; width: min(1200px, 100%); margin: 0 auto; align-items: start; }
+    .sidebar { position: sticky; top: 32px; padding: 18px 14px; border: 1px solid #e5e6eb; border-radius: 8px; background: #fff; }
+    .sidebar-title { margin: 0 8px 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+    .page-nav { display: flex; flex-direction: column; gap: 4px; }
+    .page-nav button { width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; color: var(--text-secondary); background: transparent; font: inherit; font-size: 13px; line-height: 1.45; text-align: left; cursor: pointer; }
+    .page-nav button:hover, .page-nav button[aria-current="page"] { color: var(--primary-ink); background: var(--primary-soft); }
+    .page-nav button[aria-current="page"] { font-weight: 600; }
+    main { min-width: 0; padding: 40px; border: 1px solid #e5e6eb; border-radius: 8px; background: #fff; box-shadow: 0 4px 16px rgb(30 45 75 / 6%); }
+    h1 { margin: 0; font-size: 32px; line-height: 1.3; }
+    h2 { margin: 44px 0 20px; padding-bottom: 8px; border-bottom: 1px solid #e7eaf0; font-size: 21px; line-height: 1.55; }
+    h3 { margin: 28px 0 12px; font-size: 17px; line-height: 1.5; }
+    p, li { font-size: 15px; line-height: 1.9; }
+    p { margin: 16px 0; }
+    td, th { font-size: 14px; line-height: 1.65; }
+    .definition { margin: 16px 0 0; padding: 14px 16px; border-left: 3px solid var(--primary); color: var(--text-secondary); background: var(--primary-surface); }
+    .hint { color: var(--text-muted); font-size: 13px; }
+    ul { margin: 10px 0 20px; padding-left: 22px; }
+    .placeholder-list { padding-left: 0; }
+    .placeholder-list li { list-style: none; color: var(--text-placeholder); }
+    .placeholder-list li::before { margin-right: 8px; color: #b2bac6; content: "—"; }
+    table { width: 100%; margin-top: 14px; border-collapse: collapse; }
+    th, td { min-width: 120px; padding: 10px 12px; border: 1px solid #e5e6eb; text-align: left; vertical-align: top; }
+    th { background: #fafafa; }
+    td:empty::after { content: "—"; color: var(--text-placeholder); }
+    code { padding: 2px 5px; border-radius: 5px; background: #eef1f6; font-size: 13px; }
+    .mermaid { display: flex; justify-content: center; margin: 12px 0 0; padding: 16px; overflow-x: auto; border: 1px solid var(--primary-border); border-radius: 8px; background: var(--primary-surface); }
+    .mermaid svg { max-width: 100%; height: auto; }
+    .tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 10px; background: var(--primary-soft); color: var(--primary-ink); font-size: 12px; font-weight: 600; vertical-align: 2px; }
+    @media (max-width: 720px) {
+      body { padding: 0 8px 40px; }
+      .shell { display: block; }
+      .sidebar { position: sticky; top: 0; z-index: 10; margin: 0 -8px 12px; padding: 10px 8px; border-width: 0 0 1px; border-radius: 0; }
+      .sidebar-title { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
+      .page-nav { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+      .page-nav::-webkit-scrollbar { display: none; }
+      .page-nav button { width: auto; flex: 0 0 auto; white-space: nowrap; }
+      main { padding: 24px 18px; border-radius: 8px; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tbody { display: grid; gap: 12px; }
+      tr { overflow: hidden; border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; }
+      td { display: grid; grid-template-columns: minmax(96px, 36%) minmax(0, 1fr); gap: 12px; min-width: 0; padding: 10px 12px; border: 0; border-bottom: 1px solid #e7eaf0; }
+      td:last-child { border-bottom: 0; }
+      td::before { content: attr(data-label); color: var(--text-secondary); font-size: 12px; font-weight: 600; line-height: 1.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <p class="sidebar-title">目录</p>
+      <nav class="page-nav" aria-label="规格文档页面">
+        <button type="button" data-page-target="overview" aria-current="page">当前方案</button>
+        <button type="button" data-page-target="pages">页面与内容</button>
+        <button type="button" data-page-target="interaction">交互与流程</button>
+        <button type="button" data-page-target="design">设计基底与决策</button>
+      </nav>
+    </aside>
+
+    <main>
+      <article class="spec-page" data-spec-page="overview">
+        <h1>卸煤调度管理<span class="tag">主规格草案</span></h1>
+        <p class="definition">本文档是用户与 Agent 围绕当前原型进行方案沟通、确认和持续生成的事实依据。只维护当前有效方案，并简短记录会影响当前原型的重要用户决策和变更。</p>
+
+        <section id="current-plan">
+          <h2>当前方案</h2>
+          <ul>
+            <li><strong>原型意图：</strong>为「燃料集控平台」的「卸煤调度管理」模块交付可运行的高保真管理端原型，覆盖「卸煤点维护」「矿点卸煤排班」「LED 设定」三块能力，作为后续开发与验收的界面依据。</li>
+            <li><strong>使用场景：</strong>电厂管理员在日前/当日针对当日来煤矿点指定卸煤位置，配置结果用于推送到现场 LED 大屏引导司机卸车；本期原型聚焦管理员侧的配置与维护。</li>
+            <li><strong>当前表达：</strong>Ant Design 后台浅色风格的两个管理页面；表格、筛选、排序、日期切换、抽屉表单、二级弹窗、二次确认等核心交互可操作，数据为贴近业务的脱敏样例（前端 mock），次要交互静态展示。LED 设定通过矿点卸煤管理页内的操作按钮进入抽屉配置，不单独成页。</li>
+          </ul>
+        </section>
+
+        <section id="facts-inputs">
+          <h2>事实与输入</h2>
+          <h3>用户确认事实</h3>
+          <ul>
+            <li>模块名称：<strong>卸煤调度管理</strong>，视觉方向：<strong>Ant Design 后台浅色风格</strong>。</li>
+            <li>页面范围：仅「卸煤点管理」「矿点卸煤管理」两个管理页面；<strong>不做</strong> LED 大屏页、<strong>不做</strong>平台整体外壳。</li>
+            <li>数据口径：贴近业务的<strong>脱敏样例数据</strong>。</li>
+            <li>交互深度：<strong>关键流程高保真可操作，次要交互静态展示</strong>。</li>
+            <li>LED 控制：<strong>不新增页面</strong>，在矿点卸煤管理（卸煤明细管理）页内增加「LED 设定」操作按钮；非接卸时段/接待时段默认内容仅为<strong>正文内容</strong>（无标题）；更新当日卸煤明细后自动推送卸煤要求到 LED。</li>
+            <li>主规格载体：HTML。</li>
+            <li>业务字段与约束（PRD）：卸煤点名称唯一；煤场→分区级联、变更煤场清空分区；矿点卸煤管理字段清单、筛选、排序、自动匹配、自动同步、人工新增、行编辑/行删除等，均以 PRD 原文为准。</li>
+          </ul>
+          <h3>参考资料</h3>
+          <ul>
+            <li>用户提供的「卸煤调度管理」PRD（业务规约 1 卸煤点管理 / 2 矿点卸煤管理）。</li>
+          </ul>
+          <h3>当前假设</h3>
+          <ul>
+            <li>「关联分区」隶属煤场，随煤场联动；变更煤场时清空分区。</li>
+            <li>「LED显示矿点名」为矿点在 LED 大屏的展示名，默认取矿点简称，简称为空时取矿点全名。</li>
+            <li>「自动匹配」的历史最近匹配用前端 mock 规则模拟：按同名矿点的历史卸煤点记录匹配，取最近一次。</li>
+            <li>创建人「自动同步」以固定样例账号「系统」占位；人工操作的操作人取样例「王工（admin）」。</li>
+            <li>鉴权、登录、权限、真实接口、导出、多厂区切换均不在本期。</li>
+            <li>LED 非接卸/接待时段默认正文以示例文案预填、可直接编辑；接卸时段内容由当日卸煤明细动态生成，不在 LED 设定中配置。</li>
+          </ul>
+        </section>
+
+        <section id="prototype-scope">
+          <h2>原型范围</h2>
+          <h3>本次呈现</h3>
+          <ul>
+            <li>卸煤点管理页：列表 + 新增/编辑抽屉 + 删除二次确认。</li>
+            <li>矿点卸煤管理页：按卸煤点分组的列表 + 筛选 + 排序 + 来煤日期切换（前一日/后一日/选日期）+ 自动匹配流程 + 人工新增（嵌套抽屉选矿点/卸煤点）+ 行编辑 + 行删除 + 列显隐定制。</li>
+            <li>LED 设定（矿点卸煤管理页内按钮入口）：抽屉配置非接卸时段、接待时段的默认正文内容并保存；更新当日卸煤明细后自动推送卸煤要求到 LED（模拟提示）。</li>
+          </ul>
+          <h3>本次不呈现</h3>
+          <ul>
+            <li>LED 大屏司机引导屏页面（作为场景说明保留，不单独成页）。</li>
+            <li>平台外壳与其他模块菜单（独立模块呈现）。</li>
+            <li>真实后端、鉴权/权限、服务端分页/导出、多组织/多厂区切换。</li>
+          </ul>
+        </section>
+      </article>
+
+      <article class="spec-page" data-spec-page="pages" hidden>
+        <h1>页面与内容方案</h1>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>页面/视图</th><th>页面作用</th><th>主要模块与内容</th><th>示例数据或素材</th><th>与其他页面的关系</th></tr></thead>
+            <tbody>
+              <tr>
+                <td data-label="页面/视图">卸煤点管理</td>
+                <td data-label="页面作用">维护厂内可接卸的卸煤点主数据</td>
+                <td data-label="主要模块与内容">工具栏（新增）；表格列：卸煤点名称、关联煤场、关联分区、创建时间、创建人、更新时间、更新人、操作（编辑/删除）；新增/编辑右侧抽屉表单（名称唯一校验、煤场→分区级联）</td>
+                <td data-label="示例数据或素材">卸煤点 A / B / C / D / E；一号煤场、二号煤场；东区、西区、南区、北区</td>
+                <td data-label="与其他页面的关系">卸煤点作为「矿点卸煤管理」卸煤点字段及二级弹窗的数据源</td>
+              </tr>
+              <tr>
+                <td data-label="页面/视图">矿点卸煤管理</td>
+                <td data-label="页面作用">按卸煤点分组管理各矿点的卸煤排班</td>
+                <td data-label="主要模块与内容">筛选区（矿点名称/简称、卸煤点下拉、来煤日期+前一日/后一日）；操作区（自动匹配卸煤点、新增、LED 设定）；分组表格列：序号、矿点名称(简称)、LED显示矿点名、矿点名称(可定制显隐)、计划id、计划流水号、卸煤点、状态(计划完结/未完结)、操作人、操作时间、创建人、创建时间；行内编辑/删除；LED 设定抽屉（非接卸时段正文、接待时段正文）</td>
+                <td data-label="示例数据或素材">矿点如「岭北」「东山」「华能电厂」等（内蒙古/山西）；计划号 PL202509020001；卸煤点引用卸煤点管理</td>
+                <td data-label="与其他页面的关系">引用卸煤点管理的数据；状态反映计划完结情况</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint">两个页面通过原型内顶部页签切换（hash 路由 <code>#page=xiediandian</code> / <code>#page=kuangdian</code>）。</p>
+      </article>
+
+      <article class="spec-page" data-spec-page="interaction" hidden>
+        <h1>交互与状态方案</h1>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>对象/场景</th><th>前置状态</th><th>用户操作</th><th>原型表现</th><th>后续状态</th></tr></thead>
+            <tbody>
+              <tr><td data-label="对象/场景">卸煤点新增</td><td data-label="前置状态">卸煤点列表页</td><td data-label="用户操作">点击「新增」</td><td data-label="原型表现">右侧抽屉表单：名称 / 关联煤场 / 关联分区</td><td data-label="后续状态">保存后关闭并刷新；名称重复提示「已存在」</td></tr>
+              <tr><td data-label="对象/场景">卸煤点编辑</td><td data-label="前置状态">列表页某行</td><td data-label="用户操作">点击「编辑」</td><td data-label="原型表现">抽屉预填；变更煤场清空分区</td><td data-label="后续状态">保存刷新</td></tr>
+              <tr><td data-label="对象/场景">卸煤点删除</td><td data-label="前置状态">列表页某行</td><td data-label="用户操作">点击「删除」</td><td data-label="原型表现">二次确认弹窗</td><td data-label="后续状态">确认删除并刷新</td></tr>
+              <tr><td data-label="对象/场景">进入矿点卸煤页</td><td data-label="前置状态">首次/再次进入</td><td data-label="用户操作">自动触发</td><td data-label="原型表现">同步今日及以后已确认计划，重名简称加序号，按卸煤点分组排序展示</td><td data-label="后续状态">列表展示，提示同步条数</td></tr>
+              <tr><td data-label="对象/场景">筛选 / 排序 / 日期</td><td data-label="前置状态">列表已加载</td><td data-label="用户操作">输入筛选 / 点击表头 / 前一日/后一日或选日期</td><td data-label="原型表现">即时筛选、升降序、切换日期</td><td data-label="后续状态">列表更新</td></tr>
+              <tr><td data-label="对象/场景">自动匹配卸煤点</td><td data-label="前置状态">日期下存在未分配矿点</td><td data-label="用户操作">点击「自动匹配卸煤点」</td><td data-label="原型表现">二次确认 → mock 匹配 → 二级弹窗列出匹配结果（成功/失败分别标记）</td><td data-label="后续状态">确认保存后批量写入，模拟 LED 屏刷新提示</td></tr>
+              <tr><td data-label="对象/场景">人工新增卸煤要求</td><td data-label="前置状态">存在无计划但有来煤</td><td data-label="用户操作">点击「新增」</td><td data-label="原型表现">表单：选矿点（二级抽屉）→ 回显全名/简称/LED 名；选卸煤点（二级抽屉）→ 回显煤场/分区；LED 名重复校验</td><td data-label="后续状态">保存写入；重复则覆盖原表单</td></tr>
+              <tr><td data-label="对象/场景">行编辑</td><td data-label="前置状态">某行</td><td data-label="用户操作">点击「编辑」</td><td data-label="原型表现">行内激活：改卸煤点（二级弹窗）、编辑 LED 名</td><td data-label="后续状态">点击行保存</td></tr>
+              <tr><td data-label="对象/场景">行删除</td><td data-label="前置状态">某行</td><td data-label="用户操作">点击「删除」</td><td data-label="原型表现">二次确认弹窗</td><td data-label="后续状态">删除刷新</td></tr>
+              <tr><td data-label="对象/场景">LED 设定</td><td data-label="前置状态">矿点卸煤管理页</td><td data-label="用户操作">点击「LED 设定」</td><td data-label="原型表现">抽屉：非接卸时段默认正文（多行）、接待时段默认正文（多行）</td><td data-label="后续状态">保存配置并提示</td></tr>
+              <tr><td data-label="对象/场景">自动推送 LED</td><td data-label="前置状态">更新当日卸煤明细（自动匹配保存 / 人工新增 / 行编辑等）</td><td data-label="用户操作">保存明细</td><td data-label="原型表现">成功后提示「已自动推送卸煤要求到 LED」</td><td data-label="后续状态">LED 引导屏得到最新卸煤要求（模拟）</td></tr>
+              <tr><td data-label="对象/场景">空态</td><td data-label="前置状态">无数据 / 筛选无结果</td><td data-label="用户操作">—</td><td data-label="原型表现">空状态占位 + 说明</td><td data-label="后续状态">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint">需真实表现：卸煤点名称重复错误提示、自动匹配无结果空态、LED 名重复覆盖提示、日期下无数据空态。</p>
+        <h3>核心流程</h3>
+        <pre class="mermaid">flowchart TD
+  A[进入矿点卸煤管理] --> B[自动同步今日及以后已确认来煤计划]
+  B --> C[重名简称加序号自增]
+  C --> D[按卸煤点分组排序展示]
+  D --> E{需要分配卸煤点?}
+  E -- 自动匹配 --> F[点击自动匹配卸煤点]
+  F --> G[二次确认]
+  G --> H[按历史最近匹配未分配矿点]
+  H --> I[二级弹窗展示匹配结果 成功/失败标记]
+  I --> J[用户确认保存]
+  J --> K[批量写入 + 模拟推送 LED 屏刷新]
+  E -- 人工新增 --> L[新增表单]
+  L --> M[二级抽屉选矿点 回显简称/LED名]
+  M --> N[二级抽屉选卸煤点 回显煤场/分区]
+  N --> O[LED名重复校验]
+  O --> J</pre>
+      </article>
+
+      <article class="spec-page" data-spec-page="design" hidden>
+        <h1>设计基底与用户决策</h1>
+        <section id="design-basis">
+          <h2>设计基底与原型特有调整</h2>
+          <ul>
+            <li><strong>采用设计基底：</strong>Ant Design 后台浅色（用户指定，本地无现成 antd 主题文件），用原型目录内 CSS tokens 还原 antd 视觉，不引入 antd 运行时依赖。</li>
+            <li><strong>关键 tokens：</strong>主色 <code>#1677ff</code> / hover <code>#4096ff</code>、布局背景 <code>#f0f2f5</code>、卡片 <code>#ffffff</code>、边框 <code>#f0f0f0</code>、正文 <code>rgba(0,0,0,.88)</code>、次要文字 <code>rgba(0,0,0,.65)</code>、表头 <code>#fafafa</code>、基准字号 14px、控件圆角 6px。</li>
+            <li><strong>继承方式：</strong>严格遵循 Ant Design 后台浅色规范；控件形态对齐 antd（Button / Table / Drawer / Modal / Form / Select / DatePicker / Message / Popconfirm）。</li>
+            <li><strong>本原型特有调整：</strong>无（沿用 antd 默认配色与交互习惯）。</li>
+          </ul>
+        </section>
+        <section id="open-questions">
+          <h2>当前待确认事项</h2>
+          <ul class="placeholder-list"><li>无关键待确认（LED 大屏补充页作为后续可选阶段，不影响本期）。</li></ul>
+        </section>
+        <section id="decision-history">
+          <h2>用户重要决策与变更</h2>
+          <table>
+            <thead><tr><th>日期</th><th>用户决策或变更</th><th>对当前原型的影响</th></tr></thead>
+            <tbody>
+              <tr><td data-label="日期">2026-09-02</td><td data-label="用户决策或变更">仅做两个管理页面，不做 LED 大屏与平台整体外壳</td><td data-label="对当前原型的影响">收敛页面范围</td></tr>
+              <tr><td data-label="日期">2026-09-02</td><td data-label="用户决策或变更">采用 Ant Design 后台浅色风格</td><td data-label="对当前原型的影响">确定设计基底</td></tr>
+              <tr><td data-label="日期">2026-09-02</td><td data-label="用户决策或变更">脱敏样例数据 + 关键交互可操作、次要交互静态</td><td data-label="对当前原型的影响">确定实现口径</td></tr>
+              <tr><td data-label="日期">2026-09-02</td><td data-label="用户决策或变更">主规格采用 HTML</td><td data-label="对当前原型的影响">确定载体格式</td></tr>
+              <tr><td data-label="日期">2026-09-02</td><td data-label="用户决策或变更">LED 控制不新增页面，改为矿点卸煤管理页内「LED 设定」按钮；时段内容仅正文</td><td data-label="对当前原型的影响">新增 LED 设定能力并收敛载体</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const navItems = [...document.querySelectorAll('[data-page-target]')];
+    const pages = [...document.querySelectorAll('[data-spec-page]')];
+    const showPage = (pageId) => {
+      for (const navItem of navItems) {
+        if (navItem.dataset.pageTarget === pageId) navItem.setAttribute('aria-current', 'page');
+        else navItem.removeAttribute('aria-current');
+      }
+      for (const page of pages) page.hidden = page.dataset.specPage !== pageId;
+    };
+    for (const navItem of navItems) navItem.addEventListener('click', () => showPage(navItem.dataset.pageTarget));
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e6f4ff',
+        primaryTextColor: '#222832',
+        primaryBorderColor: '#1677ff',
+        lineColor: '#1677ff',
+        secondaryColor: '#f0f7ff',
+        tertiaryColor: '#ffffff',
+        edgeLabelBackground: '#ffffff',
+        fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      },
+    });
+  </script>
+</body>
+</html>

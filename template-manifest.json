@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "runtime": {
+    "files": [
+      ".gitignore",
+      "AGENTS.md",
+      "AGENTS.template.md",
+      "CLAUDE.md",
+      "LICENSE",
+      "README.md",
+      "RELEASE_NOTES.md",
+      "package.json",
+      "skills-lock.json",
+      "template-manifest.json",
+      "src/index.html",
+      "src/vite-env.d.ts",
+      "tsconfig.base.json",
+      "tsconfig.json",
+      "tsconfig.typecheck.json",
+      "vite.config.ts",
+      "templates/prd.md",
+      "templates/prototype-spec.md",
+      "templates/prototype-spec.html",
+      "templates/prototype-review.md",
+      "templates/ui-review.md",
+      "scripts/build-all.js",
+      "scripts/canvas-fig-sync.mjs",
+      "scripts/capture-theme-homepage.mjs",
+      "scripts/capture-theme-source.mjs",
+      "scripts/check-app-ready.mjs",
+      "scripts/chrome-export-converter.mjs",
+      "scripts/scan-entries.js",
+      "scripts/sync-project-metadata.d.ts",
+      "scripts/sync-project-metadata.mjs",
+      "scripts/sync-project-metadata.mjs.d.ts",
+      "scripts/sync-vendor-if-present.mjs"
+    ],
+    "directories": [
+      ".agents/skills",
+      ".claude/skills",
+      "rules",
+      "design-knowledge",
+      "scripts/templates",
+      "scripts/utils",
+      "src/common",
+      "src/preview-templates",
+      "vite-plugins"
+    ],
+    "fileRules": [
+      {
+        "action": "exclude",
+        "pattern": "^\\.(?:agents|claude)/skills/prototype-comments(?:/|$)",
+        "description": "旧版 prototype-comments 已由 handle-comments 替代，不进入发布模板。"
+      },
+      {
+        "action": "exclude",
+        "pattern": "^\\.(?:agents|claude)/skills/triple-ampersand-operator(?:/|$)",
+        "description": "测试用 triple-ampersand-operator 不进入发布模板。"
+      },
+      {
+        "action": "exclude",
+        "pattern": "^\\.(?:agents|claude)/skills/generate-data-cockpit-prototype(?:/|$)",
+        "description": "未完善的数据大屏技能暂不进入发布模板。"
+      },
+      {
+        "action": "exclude",
+        "pattern": "^design-knowledge/(?:.+\\.(?:tgz|zip)|\\.local(?:/|$))$",
+        "description": "Design Knowledge 发布包只允许索引和 DESIGN.md，不携带归档或本地输入。"
+      }
+    ]
+  },
+  "makeMetadata": {
+    "seedDirectory": "template-seed/.axhub/make",
+    "outputDirectory": ".axhub/make",
+    "files": [
+      {
+        "path": "README.md",
+        "strategy": "copy",
+        "description": "发布模板中的 Make 元数据说明。"
+      },
+      {
+        "path": "axhub.config.json",
+        "strategy": "sanitize",
+        "description": "使用无本地配置和密钥的安全默认设置。"
+      },
+      {
+        "path": "client.json",
+        "strategy": "copy",
+        "description": "发布模板的客户端识别信息。"
+      },
+      {
+        "path": "sidebar-tree.json",
+        "strategy": "filter",
+        "description": "以固定目录结构为基底，只保留清单声明的原型和主题。"
+      }
+    ]
+  },
+  "prototypes": [
+    {
+      "id": "annotation-demo"
+    },
+    {
+      "id": "beginner-guide",
+      "fileRules": [
+        {
+          "action": "exclude",
+          "pattern": "^annotation-source\\.json$",
+          "description": "新手指导不携带标注源数据，即使源码目录中存在也不进入发布包。"
+        },
+        {
+          "action": "exclude",
+          "pattern": "\\.(?:otf|ttf)$",
+          "description": "新手指导只发布已裁剪的 WOFF2 字体，不携带原始 OTF 或 TTF 字体。"
+        }
+      ]
+    },
+    {
+      "id": "touch-and-talk-annotation-demo",
+      "fileRules": [
+        {
+          "action": "exclude",
+          "pattern": "^annotation-source\\.json$",
+          "description": "批注演示不携带标注源数据，即使源码目录中存在也不进入发布包。"
+        }
+      ]
+    }
+  ],
+  "themes": {
+    "idRules": [
+      {
+        "action": "exclude",
+        "pattern": "^(?:trae|whop)$",
+        "description": "排除仅用于本地调试、不属于正式主题库的主题。"
+      },
+      {
+        "action": "exclude",
+        "pattern": "^.+$",
+        "description": "客户端模板不再内置本地主题，主题由在线设计系统按主源、备用源顺序提供。"
+      }
+    ]
+  },
+  "resources": {
+    "files": [
+      "src/resources/.gitkeep"
+    ]
+  }
+}

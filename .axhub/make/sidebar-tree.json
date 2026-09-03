@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-02T09:50:56.911Z",
+  "prototypes": [
+    {
+      "id": "item-prototypes-coal-unload-dispatch",
+      "kind": "item",
+      "title": "coal unload dispatch",
+      "itemKey": "prototypes/coal-unload-dispatch"
+    },
+    {
+      "id": "item:prototypes:annotation-demo",
+      "kind": "item",
+      "title": "标注演示",
+      "itemKey": "prototypes/annotation-demo"
+    },
+    {
+      "id": "item:prototypes:beginner-guide",
+      "kind": "item",
+      "title": "新手指导",
+      "itemKey": "prototypes/beginner-guide"
+    },
+    {
+      "id": "item:prototypes:touch-and-talk-annotation-demo",
+      "kind": "item",
+      "title": "批注演示",
+      "itemKey": "prototypes/touch-and-talk-annotation-demo"
+    }
+  ],
+  "docs": [],
+  "themesTree": [],
+  "themes": [],
+  "data": [],
+  "templates": [
+    "prd-template.md"
+  ],
+  "components": [],
+  "canvas": []
+}
