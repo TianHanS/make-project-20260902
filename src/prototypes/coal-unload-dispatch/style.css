@@ -54,23 +54,38 @@
     box-sizing: border-box;
 }
 
+/* 占满预览 / 宿主可显示区域，避免两侧与底部留白 */
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
 /* ============================ App 外壳 ============================ */
 .cd-app {
-    min-height: 100vh;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
     background: var(--cd-bg-layout);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .cd-app-head {
     background: var(--cd-bg-container);
     border-bottom: 1px solid var(--cd-border-secondary);
-    padding: 0 32px;
+    padding: 0 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
     flex-wrap: wrap;
+    flex: none;
+    width: 100%;
 }
 
 .cd-brand {
@@ -149,15 +164,35 @@
 
 .cd-app-main {
     flex: 1;
-    padding: 20px 32px 40px;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cd-page {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ============================ 卡片 ============================ */
 .cd-card {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
     background: var(--cd-bg-container);
     border-radius: var(--cd-radius-lg);
     box-shadow: var(--cd-shadow-sm);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .cd-card-head {
@@ -167,6 +202,7 @@
     gap: 16px;
     flex-wrap: wrap;
     padding: 16px 20px;
+    flex: none;
 }
 
 .cd-card-title {
@@ -182,6 +218,73 @@
     flex-wrap: wrap;
 }
 
+/* ============================ 待卸统计条 ============================ */
+.cd-stats-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--cd-border-secondary);
+    background: linear-gradient(90deg, var(--cd-primary-bg), transparent 72%);
+    font-size: 13px;
+    color: var(--cd-text-secondary);
+    flex: none;
+}
+
+.cd-stats-label {
+    font-weight: 600;
+    color: var(--cd-text);
+}
+
+.cd-stats-item strong {
+    color: var(--cd-primary);
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.cd-stats-sep {
+    color: var(--cd-text-tertiary);
+}
+
+.cd-stats-extra {
+    color: var(--cd-text-tertiary);
+    margin-left: 4px;
+}
+
+/* ============================ 分段 Tab（LED 预览进煤系统） ============================ */
+.cd-seg {
+    display: inline-flex;
+    padding: 2px;
+    background: var(--cd-quaternary);
+    border-radius: var(--cd-radius);
+    gap: 2px;
+}
+
+.cd-seg-item {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--cd-text-secondary);
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.cd-seg-item:hover {
+    color: var(--cd-primary);
+}
+
+.cd-seg-item.is-active {
+    background: var(--cd-bg-container);
+    color: var(--cd-primary);
+    font-weight: 500;
+    box-shadow: var(--cd-shadow-sm);
+}
+
 /* ============================ 筛选 / 工具栏 ============================ */
 .cd-filter {
     display: flex;
@@ -190,6 +293,7 @@
     flex-wrap: wrap;
     padding: 14px 20px;
     border-bottom: 1px solid var(--cd-border-secondary);
+    flex: none;
 }
 
 .cd-filter-item {
@@ -423,18 +527,25 @@
 
 /* ============================ 表格 ============================ */
 .cd-table-scroll {
-    overflow-x: auto;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
 }
 
 .cd-table {
     width: 100%;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 14px;
+    table-layout: auto;
 }
 
 .cd-table thead th {
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 2;
     padding: 12px 16px;
     text-align: left;
     font-weight: 600;
@@ -1091,6 +1202,12 @@
 .cd-empty {
     padding: 40px 16px;
     text-align: center;
+    min-height: 240px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 .cd-empty-icon {
     color: var(--cd-text-disabled);
@@ -1277,10 +1394,10 @@
 /* ============================ 响应式 ============================ */
 @media (max-width: 720px) {
     .cd-app-head {
-        padding: 0 16px;
+        padding: 0 12px;
     }
     .cd-app-main {
-        padding: 12px 16px 32px;
+        padding: 12px;
     }
     .cd-brand-title {
         font-size: 15px;

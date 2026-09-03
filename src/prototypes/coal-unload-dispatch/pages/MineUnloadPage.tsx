@@ -1,5 +1,5 @@
 /**
- * 页面：矿点卸煤管理（卸煤明细管理，含 LED 设定 / 更新）
+ * 页面：矿点卸煤管理（卸煤明细管理，含 LED 预览 / 更新）
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -7,7 +7,7 @@ import {
     ChevronRight,
     Inbox,
     MonitorCheck,
-    MonitorPlay,
+    Eye,
     Plus,
     Search,
     Settings2,
@@ -25,24 +25,26 @@ import {
     Modal,
     Select,
     Tag,
-    TextArea,
     message,
     useClickOutside,
 } from '../components/ui';
 import {
     MINE_POINTS,
     addDays,
+    buildInPlantVehicles,
+    countPendingByIntakeSystem,
     fmtDate,
     fmtNow,
+    listPendingUnloadVehicles,
     mineById,
     parseDate,
     predictMatches,
-    type LedSettings,
+    type IntakeSystem,
+    type InPlantVehicle,
     type UnloadDetail,
     type UnloadPoint,
     buildInitialDetails,
     buildInitialUnloadPoints,
-    INITIAL_LED_SETTINGS,
     TODAY,
 } from '../data';
 
@@ -99,6 +101,7 @@ function sortValue(r: UnloadDetail, key: SortKey): string {
 interface MatchRow {
     detailId: string;
     mineLabel: string;
+    mineFullName: string;
     ledName: string;
     pointName: string;
     reason: string;
@@ -146,13 +149,21 @@ export default function MineUnloadPage() {
     const [deleteTarget, setDeleteTarget] = useState<UnloadDetail | null>(null);
     const [dupModal, setDupModal] = useState<UnloadDetail | null>(null);
 
-    // LED 设定 / 更新
-    const [ledOpen, setLedOpen] = useState(false);
-    const [ledSettings, setLedSettings] = useState<LedSettings>(INITIAL_LED_SETTINGS);
+    // LED 预览（按进煤系统切换待卸车辆）
+    const [vehicles] = useState<InPlantVehicle[]>(() => buildInPlantVehicles());
+    const [ledPreviewOpen, setLedPreviewOpen] = useState(false);
+    const [ledPreviewSystem, setLedPreviewSystem] = useState<IntakeSystem>('A');
 
     const pointByName = useMemo(() => new Map(points.map((p) => [p.name, p])), [points]);
     const newMine = newForm.mineId ? mineById(newForm.mineId) : undefined;
     const newPoint = newPointName ? pointByName.get(newPointName) : undefined;
+
+    const pendingStats = useMemo(() => countPendingByIntakeSystem(vehicles), [vehicles]);
+    const pendingVehicles = useMemo(() => listPendingUnloadVehicles(vehicles), [vehicles]);
+    const ledPreviewRows = useMemo(
+        () => pendingVehicles.filter((v) => v.intakeSystem === ledPreviewSystem),
+        [pendingVehicles, ledPreviewSystem],
+    );
 
     /* 进入页面：自动同步今日及以后计划 */
     const syncedRef = useRef(false);
@@ -236,6 +247,7 @@ export default function MineUnloadPage() {
         setMatchRows(preds.map((p) => ({
             detailId: p.detailId,
             mineLabel: p.mineLabel,
+            mineFullName: p.mineFullName,
             ledName: p.ledName,
             pointName: p.unloadPointId ? p.unloadPointName : '',
             reason: p.reason,
@@ -434,10 +446,10 @@ export default function MineUnloadPage() {
         setDeleteTarget(null);
     };
 
-    /* ---------- LED 设定 / 更新 ---------- */
-    const saveLed = () => {
-        message.success('LED 设定已保存，现场 LED 大屏已更新');
-        setLedOpen(false);
+    /* ---------- LED 预览 / 更新 ---------- */
+    const openLedPreview = () => {
+        setLedPreviewSystem('A');
+        setLedPreviewOpen(true);
     };
 
     const pushLedNow = () => {
@@ -538,8 +550,8 @@ export default function MineUnloadPage() {
                         <Button variant="dashed" icon={<Wand2 size={15} />} onClick={openMatchDrawer}>
                             自动匹配卸煤点
                         </Button>
-                        <Button variant="default" icon={<MonitorPlay size={15} />} onClick={() => setLedOpen(true)}>
-                            LED 设定
+                        <Button variant="default" icon={<Eye size={15} />} onClick={openLedPreview}>
+                            LED 预览
                         </Button>
                         <Button
                             variant="default"
@@ -553,6 +565,18 @@ export default function MineUnloadPage() {
                             新增
                         </Button>
                     </div>
+                </div>
+
+                <div className="cd-stats-bar" aria-label="待卸车辆统计">
+                    <span className="cd-stats-label">待卸车辆</span>
+                    <span className="cd-stats-item">
+                        A进煤系统 <strong>{pendingStats.A}</strong>
+                    </span>
+                    <span className="cd-stats-sep">·</span>
+                    <span className="cd-stats-item">
+                        B进煤系统 <strong>{pendingStats.B}</strong>
+                    </span>
+                    <span className="cd-stats-extra">共 {pendingStats.A + pendingStats.B} 辆（在厂状态：待卸煤）</span>
                 </div>
 
                 <div className="cd-filter">
@@ -706,7 +730,7 @@ export default function MineUnloadPage() {
                 open={matchDrawerOpen}
                 title={`自动匹配卸煤点（${matchRows.length} 行可编辑）`}
                 onClose={() => setMatchDrawerOpen(false)}
-                width={760}
+                width={880}
                 footer={
                     <>
                         <Button variant="default" onClick={() => setMatchDrawerOpen(false)}>
@@ -726,6 +750,7 @@ export default function MineUnloadPage() {
                         <tr>
                             <th style={{ width: 48 }}>序号</th>
                             <th>矿点名称（简称）</th>
+                            <th>矿点名称（全）</th>
                             <th>LED显示矿点名</th>
                             <th>卸煤点</th>
                             <th>匹配情况</th>
@@ -736,6 +761,7 @@ export default function MineUnloadPage() {
                             <tr className="cd-row" key={m.detailId}>
                                 <td><span className="cd-cell-muted">{i + 1}</span></td>
                                 <td className="cd-td-key">{m.mineLabel}</td>
+                                <td className="cd-td-key">{m.mineFullName || '—'}</td>
                                 <td>
                                     <Input
                                         className="cd-inline-input"
@@ -960,40 +986,73 @@ export default function MineUnloadPage() {
                 </div>
             </Modal>
 
-            {/* LED 设定抽屉 */}
+            {/* LED 预览：按进煤系统切换待卸车辆 */}
             <Drawer
-                open={ledOpen}
-                title="LED 设定（更新现场大屏）"
-                onClose={() => setLedOpen(false)}
-                width={480}
+                open={ledPreviewOpen}
+                title="LED 预览（在厂待卸车辆）"
+                onClose={() => setLedPreviewOpen(false)}
+                width={720}
                 footer={
-                    <>
-                        <Button variant="default" onClick={() => setLedOpen(false)}>
-                            取消
-                        </Button>
-                        <Button variant="primary" onClick={saveLed}>
-                            保存并推送现场 LED
-                        </Button>
-                    </>
+                    <Button variant="default" onClick={() => setLedPreviewOpen(false)}>
+                        关闭
+                    </Button>
                 }
             >
-                <Field label="非接卸时段默认显示内容" extra="LED 在非接卸时段滚动展示此内容">
-                    <TextArea
-                        value={ledSettings.offDuty}
-                        onChange={(v) => setLedSettings((s) => ({ ...s, offDuty: v }))}
-                        placeholder="请输入非接卸时段的默认显示内容"
-                        rows={5}
-                    />
-                </Field>
-                <Field label="接待时段默认显示内容" extra="LED 在接待时段滚动展示此内容">
-                    <TextArea
-                        value={ledSettings.reception}
-                        onChange={(v) => setLedSettings((s) => ({ ...s, reception: v }))}
-                        placeholder="请输入接待时段的默认显示内容"
-                        rows={5}
-                    />
-                </Field>
-                <div className="cd-confirm-text">当日卸煤明细调整后将实时发送更新到现场大屏显示。</div>
+                <div className="cd-confirm-text" style={{ marginBottom: 12 }}>
+                    查询在厂状态为「待卸煤」的车辆；进煤系统由车辆入厂信息带出，可按系统切换预览。
+                </div>
+                <div className="cd-seg" role="tablist" aria-label="进煤系统">
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={ledPreviewSystem === 'A'}
+                        className={`cd-seg-item${ledPreviewSystem === 'A' ? ' is-active' : ''}`}
+                        onClick={() => setLedPreviewSystem('A')}
+                    >
+                        A进煤系统（{pendingStats.A}）
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={ledPreviewSystem === 'B'}
+                        className={`cd-seg-item${ledPreviewSystem === 'B' ? ' is-active' : ''}`}
+                        onClick={() => setLedPreviewSystem('B')}
+                    >
+                        B进煤系统（{pendingStats.B}）
+                    </button>
+                </div>
+                {ledPreviewRows.length === 0 ? (
+                    <Empty description={`当前 ${ledPreviewSystem} 进煤系统暂无待卸车辆`} />
+                ) : (
+                    <table className="cd-table" style={{ marginTop: 12 }}>
+                        <thead>
+                            <tr>
+                                <th style={{ width: 48 }}>序号</th>
+                                <th>车牌号</th>
+                                <th>矿点名称（简称）</th>
+                                <th>矿点名称（全）</th>
+                                <th>进煤系统</th>
+                                <th>在厂状态</th>
+                                <th>入厂时间</th>
+                                <th>司机</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {ledPreviewRows.map((v, i) => (
+                                <tr className="cd-row" key={v.id}>
+                                    <td><span className="cd-cell-muted">{i + 1}</span></td>
+                                    <td className="cd-cell-strong cd-cell-mono">{v.plateNo}</td>
+                                    <td className="cd-td-key">{v.mineShortName || '—'}</td>
+                                    <td className="cd-td-key">{v.mineFullName}</td>
+                                    <td><Tag color="processing">{v.intakeSystem}进煤系统</Tag></td>
+                                    <td><Tag color="warning">{v.inPlantStatus}</Tag></td>
+                                    <td className="cd-cell-muted">{v.enteredAt}</td>
+                                    <td>{v.driverName}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </Drawer>
         </div>
     );

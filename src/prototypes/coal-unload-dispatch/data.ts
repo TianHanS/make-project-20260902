@@ -45,6 +45,7 @@ export interface UnloadDetail {
 export interface MatchPrediction {
     detailId: string;
     mineLabel: string;
+    mineFullName: string;
     ledName: string;
     unloadPointId: string | null; // null = 匹配失败
     unloadPointName: string;
@@ -254,6 +255,7 @@ export function predictMatches(details: UnloadDetail[], date: string, points: Un
                 return {
                     detailId: r.id,
                     mineLabel: label,
+                    mineFullName: r.mineFullName,
                     ledName: r.ledName,
                     unloadPointId: point.id,
                     unloadPointName: point.name,
@@ -263,6 +265,7 @@ export function predictMatches(details: UnloadDetail[], date: string, points: Un
             return {
                 detailId: r.id,
                 mineLabel: label,
+                mineFullName: r.mineFullName,
                 ledName: r.ledName,
                 unloadPointId: null,
                 unloadPointName: '',
@@ -282,3 +285,48 @@ export const INITIAL_LED_SETTINGS: LedSettings = {
     offDuty: '现处于非接卸时段\n请卸煤车辆在指定区域等候\n听从现场调度指挥',
     reception: '欢迎莅临我厂\n卸煤车辆请按指引有序停放\n听从现场工作人员引导',
 };
+
+/* ---------------- 在厂车辆（进煤系统来自入厂信息，与卸煤点无关） ---------------- */
+
+export type IntakeSystem = 'A' | 'B';
+export type InPlantStatus = '待卸煤' | '过磅中' | '已卸煤' | '已出厂';
+
+export interface InPlantVehicle {
+    id: string;
+    plateNo: string;
+    mineShortName: string;
+    mineFullName: string;
+    intakeSystem: IntakeSystem; // 车辆入厂信息带出，不按卸煤点划分
+    inPlantStatus: InPlantStatus;
+    enteredAt: string;
+    driverName: string;
+}
+
+export function buildInPlantVehicles(): InPlantVehicle[] {
+    const t = (hhmm: string) => `${TODAY} ${hhmm}`;
+    return [
+        { id: 'v1', plateNo: '晋A·D8321', mineShortName: '岭北', mineFullName: '岭北矿务局煤矿', intakeSystem: 'A', inPlantStatus: '待卸煤', enteredAt: t('07:42'), driverName: '张师傅' },
+        { id: 'v2', plateNo: '晋B·F1906', mineShortName: '东山', mineFullName: '东山煤业有限公司', intakeSystem: 'A', inPlantStatus: '待卸煤', enteredAt: t('08:05'), driverName: '李师傅' },
+        { id: 'v3', plateNo: '蒙C·8127A', mineShortName: '华能', mineFullName: '华能一号矿', intakeSystem: 'A', inPlantStatus: '待卸煤', enteredAt: t('08:18'), driverName: '王师傅' },
+        { id: 'v4', plateNo: '晋A·K4410', mineShortName: '兴盛', mineFullName: '兴盛煤业', intakeSystem: 'B', inPlantStatus: '待卸煤', enteredAt: t('07:55'), driverName: '赵师傅' },
+        { id: 'v5', plateNo: '蒙E·6632', mineShortName: '', mineFullName: '富强煤矿', intakeSystem: 'B', inPlantStatus: '待卸煤', enteredAt: t('08:22'), driverName: '钱师傅' },
+        { id: 'v6', plateNo: '晋C·9081', mineShortName: '大成', mineFullName: '大成煤业', intakeSystem: 'B', inPlantStatus: '待卸煤', enteredAt: t('08:31'), driverName: '孙师傅' },
+        { id: 'v7', plateNo: '晋A·P2208', mineShortName: '平安', mineFullName: '平安矿', intakeSystem: 'B', inPlantStatus: '待卸煤', enteredAt: t('08:40'), driverName: '周师傅' },
+        { id: 'v8', plateNo: '蒙B·5519', mineShortName: '东山2', mineFullName: '东山能源集团', intakeSystem: 'A', inPlantStatus: '过磅中', enteredAt: t('07:20'), driverName: '吴师傅' },
+        { id: 'v9', plateNo: '晋D·7760', mineShortName: '岭北', mineFullName: '岭北矿务局煤矿', intakeSystem: 'B', inPlantStatus: '已卸煤', enteredAt: t('06:50'), driverName: '郑师傅' },
+        { id: 'v10', plateNo: '蒙A·3341', mineShortName: '华能', mineFullName: '华能一号矿', intakeSystem: 'A', inPlantStatus: '已出厂', enteredAt: t('06:10'), driverName: '冯师傅' },
+    ];
+}
+
+/** 在厂状态为「待卸煤」的车辆（LED 预览 / 页内统计同源） */
+export function listPendingUnloadVehicles(vehicles: InPlantVehicle[] = buildInPlantVehicles()): InPlantVehicle[] {
+    return vehicles.filter((v) => v.inPlantStatus === '待卸煤');
+}
+
+export function countPendingByIntakeSystem(vehicles: InPlantVehicle[] = buildInPlantVehicles()): { A: number; B: number } {
+    const pending = listPendingUnloadVehicles(vehicles);
+    return {
+        A: pending.filter((v) => v.intakeSystem === 'A').length,
+        B: pending.filter((v) => v.intakeSystem === 'B').length,
+    };
+}
