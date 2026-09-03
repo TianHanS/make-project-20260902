@@ -3,7 +3,6 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-    ArrowRight,
     ChevronLeft,
     ChevronRight,
     Inbox,
@@ -39,7 +38,6 @@ import {
     parseDate,
     predictMatches,
     type LedSettings,
-    type MatchPrediction,
     type UnloadDetail,
     type UnloadPoint,
     buildInitialDetails,
@@ -157,7 +155,7 @@ export default function MineUnloadPage() {
     const newPoint = newPointName ? pointByName.get(newPointName) : undefined;
 
     /* 进入页面：自动同步今日及以后计划 */
-    const syncedRef = useRef(false;
+    const syncedRef = useRef(false);
     useEffect(() => {
         if (syncedRef.current) return;
         syncedRef.current = true;
@@ -186,16 +184,16 @@ export default function MineUnloadPage() {
         const sorted = [...filtered];
         if (sort.key) {
             sorted.sort((a, b) => {
-                const cmp = sortValue(a, sort.key!).localeCompare(sortValue(b, sort.key!), 'zh-Hans-CN';
+                const cmp = sortValue(a, sort.key!).localeCompare(sortValue(b, sort.key!), 'zh-Hans-CN');
                 return sort.order === 'asc' ? cmp : -cmp;
             });
         }
 
         const map = new Map<string, UnloadDetail[]>();
-        for ( (const r of sorted) {
+        for (const r of sorted) {
             const keyName = r.unloadPoint || '__unassigned__';
             if (!map.has(keyName)) map.set(keyName, []);
-            map.get(keyName)!.push(r;
+            map.get(keyName)!.push(r);
         }
         const entries = Array.from(map.entries());
         entries.sort((a, b) => {
@@ -234,15 +232,15 @@ export default function MineUnloadPage() {
             message.info('该日期下没有未分配卸煤点的矿点');
             return;
         }
-        const preds = predictMatches(allDetails, date, points;
+        const preds = predictMatches(allDetails, date, points);
         setMatchRows(preds.map((p) => ({
             detailId: p.detailId,
             mineLabel: p.mineLabel,
             ledName: p.ledName,
             pointName: p.unloadPointId ? p.unloadPointName : '',
             reason: p.reason,
-        }));
-        setMatchDrawerOpen(true;
+        })));
+        setMatchDrawerOpen(true);
     };
 
     const setMatchRowPoint = (rowId: string, pointName: string) => {
@@ -279,37 +277,37 @@ export default function MineUnloadPage() {
     const openNew = () => {
         setNewForm({ mineId: '', ledName: '' });
         setNewPointName('');
-        setNewOpen(true;
+        setNewOpen(true);
     };
 
     const confirmMineDrawer = () => {
         const m = mineById(minePickValue);
         if (m) {
             // 矿点/简称均为配置信息；无简称时 LED 名自动填充矿点名
-            setNewForm({ mineId: m.id, ledName: (m.shortName || m.fullName） });
+            setNewForm({ mineId: m.id, ledName: m.shortName || m.fullName });
             setNewPointName('');
         }
-        setMineDrawerOpen(false;
+        setMineDrawerOpen(false);
     };
 
     const confirmPointPicker = () => {
         if (!pointPicker) return;
         if (pointPicker.kind === 'new') {
-            setNewPointName(pointPickValue;
+            setNewPointName(pointPickValue);
         } else if (pointPicker.kind === 'edit') {
-            setEditingPoint(pointPickValue;
+            setEditingPoint(pointPickValue);
         } else {
-            setMatchRowPoint(pointPicker.rowId, pointPickValue;
+            setMatchRowPoint(pointPicker.rowId, pointPickValue);
         }
-        setPointPicker(null;
+        setPointPicker(null);
     };
 
-    const openPointPickerForNew = = () => {
-        setPointPickValue(newPointName;
+    const openPointPickerForNew = () => {
+        setPointPickValue(newPointName);
         setPointPicker({ kind: 'new' });
     };
 
-    const saveNew = = () => {
+    const saveNew = () => {
         const ledName = newForm.ledName.trim();
         if (!ledName) {
             message.warning('请输入显示的LED矿点名');
@@ -319,10 +317,10 @@ export default function MineUnloadPage() {
             message.warning('请选择卸煤点');
             return;
         }
-        const p = pointByName.get(newPointName;
+        const p = pointByName.get(newPointName);
         const existing = allDetails.find((r) => r.ledName === ledName);
         if (existing) {
-            setDupModal(existing;
+            setDupModal(existing);
             return;
         }
         const now = fmtNow();
@@ -347,14 +345,14 @@ export default function MineUnloadPage() {
         };
         setAllDetails((list) => [...list, row]);
         message.success('矿点卸煤要求已新增，并自动推送卸煤要求到 LED');
-        setNewOpen(false;
+        setNewOpen(false);
     };
 
-    const overwriteDuplicate = = () => {
+    const overwriteDuplicate = () => {
         if (!dupModal) return;
         const mine = newForm.mineId ? mineById(newForm.mineId) : undefined;
         const ledName = newForm.ledName.trim();
-        const p = pointByName.get(newPointName;
+        const p = pointByName.get(newPointName);
         const now = fmtNow();
         setAllDetails((list) =>
             list.map((r) =>
@@ -376,24 +374,24 @@ export default function MineUnloadPage() {
             ),
         );
         message.success('已覆盖原明细，并自动推送卸煤要求到 LED');
-        setDupModal(null;
-        setNewOpen(false;
+        setDupModal(null);
+        setNewOpen(false);
     };
 
     /* ---------- 行编辑 ---------- */
-    const startEdit = = (r: UnloadDetail) => {
-        setEditingRow(r.id;
-        setEditingLed(r.ledName;
-        setEditingPoint(r.unloadPoint;
+    const startEdit = (r: UnloadDetail) => {
+        setEditingRow(r.id);
+        setEditingLed(r.ledName);
+        setEditingPoint(r.unloadPoint);
     };
 
-    const cancelEdit = = () => {
-        setEditingRow(null;
+    const cancelEdit = () => {
+        setEditingRow(null);
         setEditingLed('');
         setEditingPoint('');
     };
 
-    const saveEdit = = (r: UnloadDetail) => {
+    const saveEdit = (r: UnloadDetail) => {
         const led = editingLed.trim();
         if (!led) {
             message.warning('LED显示矿点名不能为空');
@@ -403,7 +401,7 @@ export default function MineUnloadPage() {
             message.error(`LED显示矿点名「${led}」已存在`);
             return;
         }
-        const p = pointByName.get(editingPoint;
+        const p = pointByName.get(editingPoint);
         setAllDetails((list) =>
             list.map((d) =>
                 d.id === r.id
@@ -423,31 +421,31 @@ export default function MineUnloadPage() {
         cancelEdit();
     };
 
-    const openPointPickerForEdit = = (r: UnloadDetail) => {
-        setPointPickValue(editingPoint;
+    const openPointPickerForEdit = (r: UnloadDetail) => {
+        setPointPickValue(editingPoint);
         setPointPicker({ kind: 'edit', rowId: r.id });
     };
 
     /* ---------- 删除 ---------- */
-    const confirmDelete = = () => {
+    const confirmDelete = () => {
         if (!deleteTarget) return;
         setAllDetails((list) => list.filter((r) => r.id !== deleteTarget.id));
         message.success('明细已删除');
-        setDeleteTarget(null;
+        setDeleteTarget(null);
     };
 
     /* ---------- LED 设定 / 更新 ---------- */
-    const saveLed = = () => {
+    const saveLed = () => {
         message.success('LED 设定已保存，现场 LED 大屏已更新');
-        setLedOpen(false;
+        setLedOpen(false);
     };
 
-    const pushLedNow = = () => {
+    const pushLedNow = () => {
         message.success('已更新现场 LED 大屏信息（当日卸煤明细已推送）');
     };
 
     /* ---------- 渲染辅助 ---------- */
-    const renderCell = = (r: UnloadDetail, col: ColumnDef, editing: boolean): React.ReactNode => {
+    const renderCell = (r: UnloadDetail, col: ColumnDef, editing: boolean): React.ReactNode => {
         switch (col.key) {
             case 'short':
                 return (
@@ -525,7 +523,7 @@ export default function MineUnloadPage() {
     const mineSearchOptions = useMemo(() => {
         const q = mineSearch.trim();
         if (!q) return MINE_POINTS;
-        return MINE_POINTS.filter((m) => (m.fullName + m.shortName + m.origin}.includes(q));
+        return MINE_POINTS.filter((m) => (m.fullName + m.shortName + m.origin).includes(q));
     }, [mineSearch]);
 
     const pointPickerTitle =
@@ -742,7 +740,7 @@ export default function MineUnloadPage() {
                                     <Input
                                         className="cd-inline-input"
                                         value={m.ledName}
-                                        onChange={(v) => setMatchRows((list) => list.map((r) => (r.detailId === m.detailId ? { ...r, ledName: v } : r))))}
+                                        onChange={(v) => setMatchRows((list) => list.map((r) => (r.detailId === m.detailId ? { ...r, ledName: v } : r)))}
                                     />
                                 </td>
                                 <td>
