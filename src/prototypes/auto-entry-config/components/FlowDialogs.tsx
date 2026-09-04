@@ -1,42 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, Copy, GitBranch, Plus, Settings2, Trash2, Zap } from 'lucide-react';
+import { ArrowDown, ArrowUp, Copy, GitBranch, Plus, Settings2, SlidersHorizontal, Trash2, Zap } from 'lucide-react';
 import {
     FlowStep,
+    GlobalParams,
     ModuleItem,
     QUICK_TEMPLATES,
     QuickTemplate,
     RegisterParams,
     SUB_PROCESS_DEFS,
     SubProcessCode,
+    defaultGlobalParams,
     defaultParams,
     defByCode,
     nextStepId,
 } from '../data';
 import { Button, Drawer, Empty, Tag, message } from './ui';
 import { ParamDrawer } from './ParamDrawer';
+import { GlobalParamsDrawer } from './GlobalParamsDrawer';
 
 export function FlowConfigDrawer({
     open,
     module,
     initialSteps,
+    initialGlobal,
     onClose,
     onSave,
 }: {
     open: boolean;
     module: ModuleItem | null;
     initialSteps: FlowStep[];
+    initialGlobal?: GlobalParams;
     onClose: () => void;
-    onSave: (steps: FlowStep[]) => void;
+    onSave: (payload: { steps: FlowStep[]; globalParams: GlobalParams }) => void;
 }) {
     const [steps, setSteps] = useState<FlowStep[]>([]);
+    const [globalParams, setGlobalParams] = useState<GlobalParams>(defaultGlobalParams());
     const [editingId, setEditingId] = useState<string | null>(null);
     const [quickOpen, setQuickOpen] = useState(false);
+    const [globalOpen, setGlobalOpen] = useState(false);
 
     useEffect(() => {
         if (!open) return;
         setSteps(initialSteps.map((s) => ({ ...s, params: structuredClone(s.params) })));
+        setGlobalParams(structuredClone(initialGlobal ?? defaultGlobalParams()));
         setEditingId(null);
         setQuickOpen(false);
+        setGlobalOpen(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, module?.id]);
 
@@ -88,11 +97,11 @@ export function FlowConfigDrawer({
         if (pending.length > 0) {
             message.warning(`仍有 ${pending.length} 项待确认，已保存整体流程`);
         } else if (steps.length === 0) {
-            message.info('已保存空流程配置');
+            message.info('已保存配置（含全局参数）');
         } else {
             message.success('流程配置已保存');
         }
-        onSave(steps);
+        onSave({ steps, globalParams });
         onClose();
     };
 
@@ -129,7 +138,7 @@ export function FlowConfigDrawer({
                     </Button>
                 </div>
                 <p className="ae-flow-scene-hint">
-                    可从子流程库逐项编排，或点击「快速配置」选择预制模板一键加载（加载后可直接保存）。
+                    可从子流程库逐项编排，或点击「快速配置」选择预制模板一键加载（加载后可直接保存）。全局参数与流程步骤相互独立。
                 </p>
 
                 <div className="ae-flow-split">
@@ -160,6 +169,20 @@ export function FlowConfigDrawer({
                     </aside>
 
                     <section className="ae-flow-result">
+                        <button type="button" className="ae-global-entry" onClick={() => setGlobalOpen(true)}>
+                            <span className="ae-global-entry-icon">
+                                <SlidersHorizontal size={16} />
+                            </span>
+                            <span className="ae-global-entry-text">
+                                <strong>全局参数配置</strong>
+                                <span>
+                                    通知{globalParams.notifyEnabled === '0' ? '启用' : '禁用'} ·{' '}
+                                    {globalParams.ledContent || '未设置 LED 文案'}
+                                </span>
+                            </span>
+                            <span className="ae-global-entry-action">加载全局参数</span>
+                        </button>
+
                         <h3 className="ae-flow-panel-title">
                             执行流程
                             <span className="ae-flow-count">{steps.length} 步</span>
@@ -224,6 +247,16 @@ export function FlowConfigDrawer({
                     </section>
                 </div>
             </Drawer>
+
+            <GlobalParamsDrawer
+                open={globalOpen}
+                initial={globalParams}
+                onClose={() => setGlobalOpen(false)}
+                onSave={(params) => {
+                    setGlobalParams(params);
+                    message.success('全局参数已写入，保存流程配置后生效');
+                }}
+            />
 
             <QuickConfigDrawer
                 open={quickOpen}

@@ -69,8 +69,31 @@ export interface FlowStep {
 export interface ModuleFlowConfig {
     moduleId: string;
     steps: FlowStep[];
+    /** 模块级全局参数（非流程步骤参数） */
+    globalParams?: GlobalParams;
     updatedAt?: string;
 }
+
+/** 全局参数 · 默认消息设定 */
+export interface GlobalParams {
+    /** 0 启用；1 禁用 */
+    notifyEnabled: '0' | '1';
+    ledContent: string;
+    broadcastContent: string;
+}
+
+export function defaultGlobalParams(): GlobalParams {
+    return {
+        notifyEnabled: '0',
+        ledContent: '排队登记 有序入厂',
+        broadcastContent: '排队登记 有序入厂',
+    };
+}
+
+export const NOTIFY_ENABLE_OPTIONS = [
+    { value: '0', label: '启用' },
+    { value: '1', label: '禁用' },
+];
 
 export const SUB_PROCESS_DEFS: SubProcessDef[] = [
     {
@@ -285,7 +308,7 @@ export const MODULE_TYPE_FILTER_OPTIONS = [
     { value: 'SG', label: '汽车出厂点' },
 ];
 
-const STORAGE_KEY = 'ae-auto-entry-flow-configs-v2';
+const STORAGE_KEY = 'ae-auto-entry-flow-configs-v3';
 
 export function loadConfigs(): Record<string, ModuleFlowConfig> {
     try {

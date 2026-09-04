@@ -5,12 +5,12 @@
 import React, { useMemo, useState } from 'react';
 import { Copy, GitBranch, Search, Settings, SlidersHorizontal } from 'lucide-react';
 import {
-    FlowStep,
     INITIAL_MODULES,
     MODULE_TYPE_FILTER_OPTIONS,
     ModuleFlowConfig,
     ModuleItem,
     cloneSteps,
+    defaultGlobalParams,
     loadConfigs,
     saveConfigs,
 } from './data';
@@ -211,14 +211,16 @@ const Component = function Component() {
                 open={!!flowModule}
                 module={flowModule}
                 initialSteps={flowModule ? configs[flowModule.id]?.steps ?? [] : []}
+                initialGlobal={flowModule ? configs[flowModule.id]?.globalParams : undefined}
                 onClose={() => setFlowModule(null)}
-                onSave={(steps: FlowStep[]) => {
+                onSave={({ steps, globalParams }) => {
                     if (!flowModule) return;
                     persist({
                         ...configs,
                         [flowModule.id]: {
                             moduleId: flowModule.id,
                             steps,
+                            globalParams,
                             updatedAt: new Date().toISOString(),
                         },
                     });
@@ -232,12 +234,14 @@ const Component = function Component() {
                 onClose={() => setCopyModule(null)}
                 onConfirmCopy={(targetId) => {
                     if (!copyModule) return;
-                    const sourceSteps = configs[copyModule.id]?.steps ?? [];
+                    const sourceCfg = configs[copyModule.id];
+                    const sourceSteps = sourceCfg?.steps ?? [];
                     persist({
                         ...configs,
                         [targetId]: {
                             moduleId: targetId,
                             steps: cloneSteps(sourceSteps),
+                            globalParams: structuredClone(sourceCfg?.globalParams ?? defaultGlobalParams()),
                             updatedAt: new Date().toISOString(),
                         },
                     });

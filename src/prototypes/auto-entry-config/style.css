@@ -2098,3 +2098,80 @@ body,
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================ 全局参数入口 ============================ */
+.ae-global-entry {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    width: calc(100% - 20px);
+    margin: 10px 10px 0;
+    padding: 12px;
+    border: 1px dashed var(--ae-primary-border);
+    border-radius: var(--ae-radius);
+    background: linear-gradient(180deg, #f0f7ff, #fff);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+}
+
+.ae-global-entry:hover {
+    border-style: solid;
+    border-color: var(--ae-primary);
+    box-shadow: 0 0 0 1px rgba(22, 119, 255, 0.12);
+}
+
+.ae-global-entry-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--ae-radius);
+    background: var(--ae-primary-bg);
+    color: var(--ae-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ae-global-entry-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ae-global-entry-text strong {
+    font-size: 13px;
+    color: var(--ae-text);
+}
+
+.ae-global-entry-text span {
+    font-size: 12px;
+    color: var(--ae-text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ae-global-entry-action {
+    flex: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ae-primary);
+    white-space: nowrap;
+}
+
+.ae-global-form-group {
+    margin: 0 0 14px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ae-primary-active);
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+    border-radius: var(--ae-radius-sm);
+}
+
+.ae-flow-result .ae-flow-panel-title {
+    margin-top: 0;
+}
