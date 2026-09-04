@@ -1,5 +1,11 @@
 /**
  * @name 卸煤调度管理
+ * @mode axure
+ *
+ * 参考资料：
+ * - rules/axure-export-workflow.md
+ * - rules/prototype-development-guide.md
+ * - rules/axure-api-guide.md
  */
 
 import React from 'react';
@@ -23,7 +29,7 @@ const tabs = [
     { id: 'mine-unload', title: '矿点卸煤管理', icon: Truck },
 ];
 
-export default function CoalUnloadDispatch() {
+const Component = function Component() {
     const { page, setPage } = useHashPage(route);
 
     return (
@@ -63,4 +69,6 @@ export default function CoalUnloadDispatch() {
             <MessageHost />
         </div>
     );
-}
+};
+
+export default Component;
