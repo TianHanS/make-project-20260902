@@ -1,5 +1,11 @@
 /**
  * @name 自动入厂流程配置
+ * @mode axure
+ *
+ * 参考资料：
+ * - rules/axure-export-workflow.md
+ * - rules/prototype-development-guide.md
+ * - rules/axure-api-guide.md
  */
 
 import React, { useMemo, useState } from 'react';
