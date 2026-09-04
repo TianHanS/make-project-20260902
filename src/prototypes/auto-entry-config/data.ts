@@ -19,14 +19,18 @@ export interface SubProcessDef {
 }
 
 export interface NotifyBlock {
-    enabled: boolean;
-    led: string;
+    voiceEnabled: boolean;
     voice: string;
+    ledEnabled: boolean;
+    led: string;
 }
 
 export interface CarIdentifyParams {
     method: '1' | '2' | '3' | '4';
-    notify: NotifyBlock;
+    notifyStart: NotifyBlock;
+    notifySuccess: NotifyBlock;
+    notifyFail: NotifyBlock;
+    notifyTimeout: NotifyBlock;
 }
 
 export interface RegisterParams {
@@ -120,13 +124,24 @@ export const YES_NO = [
     { value: '1', label: '是' },
 ];
 
+export const MESSAGE_PLACEHOLDERS = [
+    { key: '日期', token: '{日期}' },
+    { key: '车牌号', token: '{车牌号}' },
+    { key: '流水号', token: '{流水号}' },
+    { key: '卸煤区', token: '{卸煤区}' },
+    { key: '采样位', token: '{采样位}' },
+    { key: '抽检样', token: '{抽检样}' },
+    { key: '重量', token: '{重量}' },
+    { key: '平台消息', token: '{平台消息}' },
+] as const;
+
 let stepSeq = 0;
 export function nextStepId() {
     return `step-${Date.now()}-${++stepSeq}`;
 }
 
 export function defaultNotify(led = '', voice = ''): NotifyBlock {
-    return { enabled: true, led, voice };
+    return { voiceEnabled: true, voice: voice || led, ledEnabled: true, led: led || voice };
 }
 
 export function defaultParams(code: SubProcessCode): StepParams {
@@ -134,7 +149,10 @@ export function defaultParams(code: SubProcessCode): StepParams {
         case 'carIdentify':
             return {
                 method: '1',
-                notify: defaultNotify('请稍候，正在登记…', '请稍候，正在登记'),
+                notifyStart: defaultNotify('请上磅识别', '请上磅识别'),
+                notifySuccess: defaultNotify('{车牌号}识别成功', '{车牌号}识别成功'),
+                notifyFail: defaultNotify('识别失败请重试', '识别失败请重试'),
+                notifyTimeout: defaultNotify('识别超时', '识别超时，流程重启'),
             } satisfies CarIdentifyParams;
         case 'register':
             return {
@@ -158,22 +176,17 @@ export function defaultParams(code: SubProcessCode): StepParams {
     }
 }
 
-/** 标准自动入厂流程预制 */
-export function buildStandardSceneSteps(): FlowStep[] {
-    const car = defaultParams('carIdentify') as CarIdentifyParams;
-    car.method = '1';
-
-    const reg = defaultParams('register') as RegisterParams;
-    reg.type = '1';
-    reg.enterPointName = '南门发卡室';
-
-    const barrier = defaultParams('BarrierControl') as BarrierParams;
-    barrier.control = '1';
-
-    const reset = defaultParams('reset') as ResetParams;
-    reset.waitTime = 15;
-    reset.skipWait = '1';
-    reset.barrierControl = '0';
+/** 组装一条含四段默认子流程的配置，并套用局部参数覆盖 */
+function buildPipeline(overrides: {
+    car?: Partial<CarIdentifyParams>;
+    register?: Partial<RegisterParams>;
+    barrier?: Partial<BarrierParams>;
+    reset?: Partial<ResetParams>;
+}): FlowStep[] {
+    const car = { ...(defaultParams('carIdentify') as CarIdentifyParams), ...overrides.car };
+    const reg = { ...(defaultParams('register') as RegisterParams), ...overrides.register };
+    const barrier = { ...(defaultParams('BarrierControl') as BarrierParams), ...overrides.barrier };
+    const reset = { ...(defaultParams('reset') as ResetParams), ...overrides.reset };
 
     return [
         { instanceId: nextStepId(), code: 'carIdentify', needsConfirm: false, fromScene: true, params: car },
@@ -181,6 +194,70 @@ export function buildStandardSceneSteps(): FlowStep[] {
         { instanceId: nextStepId(), code: 'BarrierControl', needsConfirm: false, fromScene: true, params: barrier },
         { instanceId: nextStepId(), code: 'reset', needsConfirm: false, fromScene: true, params: reset },
     ];
+}
+
+export interface QuickTemplate {
+    id: string;
+    name: string;
+    description: string;
+    build: () => FlowStep[];
+}
+
+/** 快速配置模板（可多选其一加载） */
+export const QUICK_TEMPLATES: QuickTemplate[] = [
+    {
+        id: 'standard-auto-entry',
+        name: '标准自动入厂流程',
+        description: '车辆提前已预登记，车辆到厂，车牌识别器识别车辆后，进行来煤入厂登记',
+        build: () =>
+            buildPipeline({
+                car: { method: '1' },
+                register: { type: '1', enterPointName: '南门发卡室' },
+                barrier: { control: '1' },
+                reset: { waitTime: 15, skipWait: '1', barrierControl: '0' },
+            }),
+    },
+    {
+        id: 'flyash-auto-entry',
+        name: '粉煤灰固废自动入厂',
+        description: '到厂后车牌识别，按粉煤灰固废类型登记，抬杆放行并完成现场复位',
+        build: () =>
+            buildPipeline({
+                car: { method: '1' },
+                register: { type: '2', enterPointName: '固废登记点' },
+                barrier: { control: '1' },
+                reset: { waitTime: 15, skipWait: '1', barrierControl: '0' },
+            }),
+    },
+    {
+        id: 'card-identify-entry',
+        name: '卡号识别入厂流程',
+        description: '现场以车辆读卡器为主识别车辆，登记煤/非煤物资后抬杆，再复位现场',
+        build: () =>
+            buildPipeline({
+                car: { method: '2' },
+                register: { type: '1', enterPointName: '南门发卡室' },
+                barrier: { control: '1' },
+                reset: { waitTime: 12, skipWait: '1', barrierControl: '0' },
+            }),
+    },
+    {
+        id: 'compat-auto-register',
+        name: '兼容识别自动登记',
+        description: '兼容模式识别（二维码→卡→车牌），优先查预登记后自动登记，适合多设备并存点位',
+        build: () =>
+            buildPipeline({
+                car: { method: '4' },
+                register: { type: '3', enterPointName: '南门入厂点' },
+                barrier: { control: '1' },
+                reset: { waitTime: 15, skipWait: '1', barrierControl: '0' },
+            }),
+    },
+];
+
+/** @deprecated 使用 QUICK_TEMPLATES 中标准模板 */
+export function buildStandardSceneSteps(): FlowStep[] {
+    return QUICK_TEMPLATES[0].build();
 }
 
 export function defByCode(code: SubProcessCode) {
@@ -208,7 +285,7 @@ export const MODULE_TYPE_FILTER_OPTIONS = [
     { value: 'SG', label: '汽车出厂点' },
 ];
 
-const STORAGE_KEY = 'ae-auto-entry-flow-configs-v1';
+const STORAGE_KEY = 'ae-auto-entry-flow-configs-v2';
 
 export function loadConfigs(): Record<string, ModuleFlowConfig> {
     try {

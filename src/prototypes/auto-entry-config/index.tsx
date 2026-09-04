@@ -14,7 +14,7 @@ import {
     loadConfigs,
     saveConfigs,
 } from './data';
-import { CopyFlowDrawer, FlowConfigModal } from './components/FlowDialogs';
+import { CopyFlowDrawer, FlowConfigDrawer } from './components/FlowDialogs';
 import { Button, MessageHost, Select, message } from './components/ui';
 import './style.css';
 
@@ -207,7 +207,7 @@ const Component = function Component() {
                 </div>
             </main>
 
-            <FlowConfigModal
+            <FlowConfigDrawer
                 open={!!flowModule}
                 module={flowModule}
                 initialSteps={flowModule ? configs[flowModule.id]?.steps ?? [] : []}

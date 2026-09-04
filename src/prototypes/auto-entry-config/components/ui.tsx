@@ -150,6 +150,8 @@ export function Drawer({
     footer,
     width = 480,
     children,
+    nested = false,
+    maskClosable = true,
 }: {
     open: boolean;
     title: React.ReactNode;
@@ -157,13 +159,15 @@ export function Drawer({
     footer?: React.ReactNode;
     width?: number;
     children: React.ReactNode;
+    nested?: boolean;
+    maskClosable?: boolean;
 }) {
     if (!open) return null;
     return createPortal(
         <div
-            className="ae-overlay ae-overlay-drawer"
+            className={`ae-overlay ae-overlay-drawer${nested ? ' is-nested' : ''}`}
             onMouseDown={(e) => {
-                if (e.target === e.currentTarget) onClose();
+                if (maskClosable && e.target === e.currentTarget) onClose();
             }}
         >
             <div className="ae-drawer" style={{ width }} role="dialog" aria-modal="true">

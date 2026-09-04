@@ -1,11 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HelpCircle } from 'lucide-react';
 import {
     BARRIER_OPTIONS,
     BarrierParams,
     CarIdentifyParams,
     FlowStep,
+    MESSAGE_PLACEHOLDERS,
     METHOD_OPTIONS,
+    NotifyBlock,
     REGISTER_TYPE_OPTIONS,
     RESET_BARRIER_OPTIONS,
     RegisterParams,
@@ -14,7 +16,9 @@ import {
     YES_NO,
     defByCode,
 } from '../data';
-import { Button, Drawer, Field, Input, Select } from './ui';
+import { Button, Checkbox, Drawer, Field, Input, Select } from './ui';
+
+const PARAM_DRAWER_WIDTH = 760;
 
 function Hint({ text }: { text: string }) {
     return (
@@ -24,53 +28,144 @@ function Hint({ text }: { text: string }) {
     );
 }
 
-function NotifyFields({
-    label,
+type FocusTarget = { cardKey: string; field: 'voice' | 'led' };
+
+function NotifyTextInput({
     value,
     onChange,
-    hint,
-    disabled = false,
+    onFocusField,
+    placeholder,
+    disabled,
 }: {
-    label: string;
-    value: { enabled: boolean; led: string; voice: string };
-    onChange: (v: { enabled: boolean; led: string; voice: string }) => void;
-    hint: string;
+    value: string;
+    onChange: (v: string) => void;
+    onFocusField: (el: HTMLInputElement) => void;
+    placeholder?: string;
     disabled?: boolean;
 }) {
+    const ref = useRef<HTMLInputElement>(null);
     return (
-        <fieldset className={`ae-notify-block${disabled ? ' is-disabled' : ''}`} disabled={disabled}>
-            <legend>
-                {label} <Hint text={hint} />
-            </legend>
-            <div className="ae-radio-row">
-                <label className="ae-radio">
-                    <input
-                        type="radio"
-                        checked={value.enabled}
-                        onChange={() => onChange({ ...value, enabled: true })}
-                    />
-                    启用
-                </label>
-                <label className="ae-radio">
-                    <input
-                        type="radio"
-                        checked={!value.enabled}
-                        onChange={() => onChange({ ...value, enabled: false })}
-                    />
-                    禁用
-                </label>
+        <input
+            ref={ref}
+            className="ae-input"
+            value={value}
+            disabled={disabled}
+            placeholder={placeholder}
+            onFocus={() => {
+                if (ref.current) onFocusField(ref.current);
+            }}
+            onSelect={() => {
+                if (ref.current) onFocusField(ref.current);
+            }}
+            onChange={(e) => onChange(e.target.value)}
+        />
+    );
+}
+
+function MessageNotifySection({
+    items,
+}: {
+    items: Array<{
+        key: string;
+        title: string;
+        value: NotifyBlock;
+        onChange: (v: NotifyBlock) => void;
+        disabled?: boolean;
+    }>;
+}) {
+    const focusRef = useRef<{ target: FocusTarget; el: HTMLInputElement } | null>(null);
+    const [focusKey, setFocusKey] = useState<string | null>(null);
+
+    const insertToken = (token: string) => {
+        const cur = focusRef.current;
+        if (!cur) return;
+        const item = items.find((i) => i.key === cur.target.cardKey);
+        if (!item || item.disabled) return;
+        const field = cur.target.field;
+        const el = cur.el;
+        const start = el.selectionStart ?? item.value[field].length;
+        const end = el.selectionEnd ?? item.value[field].length;
+        const nextText = item.value[field].slice(0, start) + token + item.value[field].slice(end);
+        item.onChange({ ...item.value, [field]: nextText });
+        const caret = start + token.length;
+        requestAnimationFrame(() => {
+            el.focus();
+            el.setSelectionRange(caret, caret);
+        });
+    };
+
+    return (
+        <section className="ae-msg-cfg">
+            <header className="ae-msg-cfg-head">
+                <h4>
+                    <span className="ae-msg-cfg-dot" />
+                    消息通知配置
+                </h4>
+                <p>配置本流程触发时的语音与 LED 显示；可用顶部按钮在光标处插入占位符。</p>
+            </header>
+
+            <div className="ae-msg-placeholders">
+                <div className="ae-msg-placeholders-label">插入占位符（光标点选按钮）</div>
+                <div className="ae-msg-placeholders-btns">
+                    {MESSAGE_PLACEHOLDERS.map((p) => (
+                        <button
+                            key={p.key}
+                            type="button"
+                            className="ae-msg-ph-btn"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => insertToken(p.token)}
+                            title={`插入 ${p.token}`}
+                        >
+                            {p.key}
+                        </button>
+                    ))}
+                </div>
+                {!focusKey ? <p className="ae-msg-ph-tip">先点击下方任一输入框，再点选变量插入到光标位置</p> : null}
             </div>
-            <Field label="LED 显示内容" extra={<span className="ae-field-guide">现场 LED 屏展示文案</span>}>
-                <Input value={value.led} onChange={(led) => onChange({ ...value, led })} placeholder="请输入 LED 文案" />
-            </Field>
-            <Field label="语音播报内容" extra={<span className="ae-field-guide">现场语音播报文案</span>}>
-                <Input
-                    value={value.voice}
-                    onChange={(voice) => onChange({ ...value, voice })}
-                    placeholder="请输入语音文案"
-                />
-            </Field>
-        </fieldset>
+
+            <div className="ae-msg-grid">
+                {items.map((item) => (
+                    <article
+                        key={item.key}
+                        className={`ae-msg-card${item.disabled ? ' is-disabled' : ''}${focusKey?.startsWith(item.key) ? ' is-active' : ''}`}
+                    >
+                        <h5>{item.title}</h5>
+                        <Checkbox
+                            checked={item.value.voiceEnabled}
+                            onChange={(voiceEnabled) => item.onChange({ ...item.value, voiceEnabled })}
+                        >
+                            是否启用语音
+                        </Checkbox>
+                        <NotifyTextInput
+                            value={item.value.voice}
+                            disabled={item.disabled || !item.value.voiceEnabled}
+                            placeholder="语音播报文案"
+                            onChange={(voice) => item.onChange({ ...item.value, voice })}
+                            onFocusField={(el) => {
+                                focusRef.current = { target: { cardKey: item.key, field: 'voice' }, el };
+                                setFocusKey(`${item.key}:voice`);
+                            }}
+                        />
+                        <Checkbox
+                            checked={item.value.ledEnabled}
+                            onChange={(ledEnabled) => item.onChange({ ...item.value, ledEnabled })}
+                        >
+                            是否启用LED
+                        </Checkbox>
+                        <NotifyTextInput
+                            value={item.value.led}
+                            disabled={item.disabled || !item.value.ledEnabled}
+                            placeholder="LED 显示文案"
+                            onChange={(led) => item.onChange({ ...item.value, led })}
+                            onFocusField={(el) => {
+                                focusRef.current = { target: { cardKey: item.key, field: 'led' }, el };
+                                setFocusKey(`${item.key}:led`);
+                            }}
+                        />
+                    </article>
+                ))}
+            </div>
+        </section>
     );
 }
 
@@ -94,11 +189,33 @@ function CarIdentifyForm({
                     onChange={(method) => onChange({ ...value, method: method as CarIdentifyParams['method'] })}
                 />
             </Field>
-            <NotifyFields
-                label="识别结果通知"
-                value={value.notify}
-                onChange={(notify) => onChange({ ...value, notify })}
-                hint="识别成功后向现场 LED / 语音提示"
+            <MessageNotifySection
+                items={[
+                    {
+                        key: 'start',
+                        title: '开始识别',
+                        value: value.notifyStart,
+                        onChange: (notifyStart) => onChange({ ...value, notifyStart }),
+                    },
+                    {
+                        key: 'success',
+                        title: '识别成功',
+                        value: value.notifySuccess,
+                        onChange: (notifySuccess) => onChange({ ...value, notifySuccess }),
+                    },
+                    {
+                        key: 'fail',
+                        title: '识别失败',
+                        value: value.notifyFail,
+                        onChange: (notifyFail) => onChange({ ...value, notifyFail }),
+                    },
+                    {
+                        key: 'timeout',
+                        title: '识别超时',
+                        value: value.notifyTimeout,
+                        onChange: (notifyTimeout) => onChange({ ...value, notifyTimeout }),
+                    },
+                ]}
             />
         </>
     );
@@ -130,31 +247,35 @@ function RegisterForm({ value, onChange }: { value: RegisterParams; onChange: (v
                     placeholder="例如：南门发卡室"
                 />
             </Field>
-            <NotifyFields
-                label="登记成功通知"
-                value={value.notifySuccess}
-                onChange={(notifySuccess) => onChange({ ...value, notifySuccess })}
-                hint="登记成功时的现场提示"
-            />
-            <NotifyFields
-                label="登记失败通知"
-                value={value.notifyFail}
-                onChange={(notifyFail) => onChange({ ...value, notifyFail })}
-                hint="登记失败时的现场提示"
-            />
-            <NotifyFields
-                label="直通成功通知"
-                value={value.notifyDirectSuccess}
-                onChange={(notifyDirectSuccess) => onChange({ ...value, notifyDirectSuccess })}
-                hint="登记类型为煤/非煤或自动登记时可用"
-                disabled={!showDirect}
-            />
-            <NotifyFields
-                label="直通失败通知"
-                value={value.notifyDirectFail}
-                onChange={(notifyDirectFail) => onChange({ ...value, notifyDirectFail })}
-                hint="登记类型为煤/非煤或自动登记时可用"
-                disabled={!showDirect}
+            <MessageNotifySection
+                items={[
+                    {
+                        key: 'reg-ok',
+                        title: '登记成功',
+                        value: value.notifySuccess,
+                        onChange: (notifySuccess) => onChange({ ...value, notifySuccess }),
+                    },
+                    {
+                        key: 'reg-fail',
+                        title: '登记失败',
+                        value: value.notifyFail,
+                        onChange: (notifyFail) => onChange({ ...value, notifyFail }),
+                    },
+                    {
+                        key: 'direct-ok',
+                        title: '直通成功',
+                        value: value.notifyDirectSuccess,
+                        onChange: (notifyDirectSuccess) => onChange({ ...value, notifyDirectSuccess }),
+                        disabled: !showDirect,
+                    },
+                    {
+                        key: 'direct-fail',
+                        title: '直通失败',
+                        value: value.notifyDirectFail,
+                        onChange: (notifyDirectFail) => onChange({ ...value, notifyDirectFail }),
+                        disabled: !showDirect,
+                    },
+                ]}
             />
         </>
     );
@@ -239,11 +360,15 @@ function ResetForm({ value, onChange }: { value: ResetParams; onChange: (v: Rese
                     }
                 />
             </Field>
-            <NotifyFields
-                label="复位完成通知"
-                value={value.notify}
-                onChange={(notify) => onChange({ ...value, notify })}
-                hint="复位完成的现场提示"
+            <MessageNotifySection
+                items={[
+                    {
+                        key: 'reset',
+                        title: '复位完成',
+                        value: value.notify,
+                        onChange: (notify) => onChange({ ...value, notify }),
+                    },
+                ]}
             />
         </>
     );
@@ -264,14 +389,14 @@ export function ParamDrawer({
     const code: SubProcessCode | null = step?.code ?? null;
     const title = useMemo(() => (code ? `${defByCode(code).name} · 参数配置` : '参数配置'), [code]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (open && step) setDraft(structuredClone(step.params));
         if (!open) setDraft(null);
     }, [open, step]);
 
     if (!step || !draft) {
         return (
-            <Drawer open={open} title={title} onClose={onClose} width={440} footer={null}>
+            <Drawer open={open} title={title} onClose={onClose} width={PARAM_DRAWER_WIDTH} nested footer={null}>
                 <p className="ae-muted">未选择子流程</p>
             </Drawer>
         );
@@ -293,7 +418,8 @@ export function ParamDrawer({
             open={open}
             title={title}
             onClose={onClose}
-            width={460}
+            width={PARAM_DRAWER_WIDTH}
+            nested
             footer={
                 <div className="ae-drawer-actions">
                     <Button onClick={onClose}>取消</Button>

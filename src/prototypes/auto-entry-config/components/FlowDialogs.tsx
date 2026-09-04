@@ -3,18 +3,19 @@ import { ArrowDown, ArrowUp, Copy, GitBranch, Plus, Settings2, Trash2, Zap } fro
 import {
     FlowStep,
     ModuleItem,
+    QUICK_TEMPLATES,
+    QuickTemplate,
     RegisterParams,
     SUB_PROCESS_DEFS,
     SubProcessCode,
-    buildStandardSceneSteps,
     defaultParams,
     defByCode,
     nextStepId,
 } from '../data';
-import { Button, Drawer, Empty, Modal, Tag, message } from './ui';
+import { Button, Drawer, Empty, Tag, message } from './ui';
 import { ParamDrawer } from './ParamDrawer';
 
-export function FlowConfigModal({
+export function FlowConfigDrawer({
     open,
     module,
     initialSteps,
@@ -29,13 +30,13 @@ export function FlowConfigModal({
 }) {
     const [steps, setSteps] = useState<FlowStep[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [sceneConfirmOpen, setSceneConfirmOpen] = useState(false);
+    const [quickOpen, setQuickOpen] = useState(false);
 
     useEffect(() => {
         if (!open) return;
         setSteps(initialSteps.map((s) => ({ ...s, params: structuredClone(s.params) })));
         setEditingId(null);
-        // 仅在打开弹窗或切换模块时回填，避免父组件重渲染导致编辑中断
+        setQuickOpen(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, module?.id]);
 
@@ -54,15 +55,10 @@ export function FlowConfigModal({
         ]);
     };
 
-    const applyStandardScene = () => {
-        setSteps(buildStandardSceneSteps());
-        setSceneConfirmOpen(false);
-        message.success('已加载「标准自动入厂流程」，可直接保存');
-    };
-
-    const onPickScene = () => {
-        if (steps.length > 0) setSceneConfirmOpen(true);
-        else applyStandardScene();
+    const applyTemplate = (tpl: QuickTemplate) => {
+        setSteps(tpl.build());
+        setQuickOpen(false);
+        message.success(`已加载「${tpl.name}」，可直接保存`);
     };
 
     const move = (index: number, dir: -1 | 1) => {
@@ -104,14 +100,14 @@ export function FlowConfigModal({
 
     return (
         <>
-            <Modal
+            <Drawer
                 open={open}
                 title={`流程配置 · ${module.name}`}
                 onClose={onClose}
-                width={920}
+                width={880}
                 maskClosable={false}
                 footer={
-                    <div className="ae-modal-actions">
+                    <div className="ae-drawer-actions">
                         <Button onClick={onClose}>取消</Button>
                         <Button variant="primary" onClick={handleSave}>
                             保存
@@ -128,12 +124,12 @@ export function FlowConfigModal({
                             类型 <Tag color="processing">{module.typeName}</Tag>
                         </span>
                     </div>
-                    <Button variant="primary" icon={<Zap size={14} />} onClick={onPickScene}>
-                        标准自动入厂流程
+                    <Button variant="primary" icon={<Zap size={14} />} onClick={() => setQuickOpen(true)}>
+                        快速配置
                     </Button>
                 </div>
                 <p className="ae-flow-scene-hint">
-                    快速场景：车辆提前预登记 → 到厂车牌识别 → 来煤入厂登记。加载后无需再配参即可直接保存。
+                    可从子流程库逐项编排，或点击「快速配置」选择预制模板一键加载（加载后可直接保存）。
                 </p>
 
                 <div className="ae-flow-split">
@@ -142,14 +138,22 @@ export function FlowConfigModal({
                         <ul className="ae-flow-lib-list">
                             {SUB_PROCESS_DEFS.map((d) => (
                                 <li key={d.code} className="ae-flow-lib-item">
-                                    <div className="ae-flow-lib-head">
-                                        <strong>{d.name}</strong>
-                                        <code>{d.code}</code>
+                                    <div className="ae-flow-lib-main">
+                                        <div className="ae-flow-lib-head">
+                                            <strong>{d.name}</strong>
+                                            <code>{d.code}</code>
+                                        </div>
+                                        <p>{d.description}</p>
                                     </div>
-                                    <p>{d.description}</p>
-                                    <Button size="small" icon={<Plus size={12} />} onClick={() => addStep(d.code)}>
-                                        添加到流程
-                                    </Button>
+                                    <button
+                                        type="button"
+                                        className="ae-icon-add"
+                                        title={`添加「${d.name}」到流程`}
+                                        aria-label={`添加${d.name}`}
+                                        onClick={() => addStep(d.code)}
+                                    >
+                                        <Plus size={16} />
+                                    </button>
                                 </li>
                             ))}
                         </ul>
@@ -161,7 +165,10 @@ export function FlowConfigModal({
                             <span className="ae-flow-count">{steps.length} 步</span>
                         </h3>
                         {steps.length === 0 ? (
-                            <Empty description="从左侧添加子流程，或使用快速场景一键配置" icon={<GitBranch size={36} />} />
+                            <Empty
+                                description="点击左侧 + 添加子流程，或使用快速配置"
+                                icon={<GitBranch size={36} />}
+                            />
                         ) : (
                             <ol className="ae-flow-steps">
                                 {steps.map((s, index) => {
@@ -185,9 +192,8 @@ export function FlowConfigModal({
                                                     size="small"
                                                     icon={<Settings2 size={12} />}
                                                     onClick={() => setEditingId(s.instanceId)}
-                                                >
-                                                    配置
-                                                </Button>
+                                                    title="配置参数"
+                                                />
                                                 <Button
                                                     size="small"
                                                     icon={<ArrowUp size={12} />}
@@ -217,7 +223,14 @@ export function FlowConfigModal({
                         )}
                     </section>
                 </div>
-            </Modal>
+            </Drawer>
+
+            <QuickConfigDrawer
+                open={quickOpen}
+                hasExistingSteps={steps.length > 0}
+                onClose={() => setQuickOpen(false)}
+                onConfirm={applyTemplate}
+            />
 
             <ParamDrawer
                 open={!!editing}
@@ -234,23 +247,113 @@ export function FlowConfigModal({
                     message.success('子流程参数已更新');
                 }}
             />
+        </>
+    );
+}
 
-            <Modal
-                open={sceneConfirmOpen}
-                title="覆盖当前流程？"
-                onClose={() => setSceneConfirmOpen(false)}
+/** @deprecated 兼容旧命名 */
+export const FlowConfigModal = FlowConfigDrawer;
+
+function QuickConfigDrawer({
+    open,
+    hasExistingSteps,
+    onClose,
+    onConfirm,
+}: {
+    open: boolean;
+    hasExistingSteps: boolean;
+    onClose: () => void;
+    onConfirm: (tpl: QuickTemplate) => void;
+}) {
+    const [selectedId, setSelectedId] = useState(QUICK_TEMPLATES[0]?.id ?? '');
+    const [confirmOpen, setConfirmOpen] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            setSelectedId(QUICK_TEMPLATES[0]?.id ?? '');
+            setConfirmOpen(false);
+        }
+    }, [open]);
+
+    const selected = QUICK_TEMPLATES.find((t) => t.id === selectedId) ?? null;
+
+    const tryLoad = () => {
+        if (!selected) {
+            message.warning('请先选择一个配置方案');
+            return;
+        }
+        if (hasExistingSteps) setConfirmOpen(true);
+        else onConfirm(selected);
+    };
+
+    return (
+        <>
+            <Drawer
+                open={open}
+                title="快速配置"
+                onClose={onClose}
                 width={420}
+                nested
                 footer={
-                    <div className="ae-modal-actions">
-                        <Button onClick={() => setSceneConfirmOpen(false)}>取消</Button>
-                        <Button variant="primary" onClick={applyStandardScene}>
+                    <div className="ae-drawer-actions">
+                        <Button onClick={onClose}>取消</Button>
+                        <Button variant="primary" disabled={!selectedId} onClick={tryLoad}>
+                            确认加载
+                        </Button>
+                    </div>
+                }
+            >
+                <p className="ae-field-guide" style={{ marginBottom: 12 }}>
+                    选择预制配置方案，确认后将加载对应子流程及参数；加载结果可直接保存，也可再微调。
+                </p>
+                <ul className="ae-tpl-list">
+                    {QUICK_TEMPLATES.map((tpl) => {
+                        const active = tpl.id === selectedId;
+                        return (
+                            <li key={tpl.id}>
+                                <button
+                                    type="button"
+                                    className={`ae-tpl-card${active ? ' is-selected' : ''}`}
+                                    onClick={() => setSelectedId(tpl.id)}
+                                >
+                                    <span className="ae-tpl-radio" aria-hidden="true" />
+                                    <span className="ae-tpl-body">
+                                        <strong>{tpl.name}</strong>
+                                        <span>{tpl.description}</span>
+                                    </span>
+                                </button>
+                            </li>
+                        );
+                    })}
+                </ul>
+            </Drawer>
+
+            <Drawer
+                open={confirmOpen}
+                title="覆盖当前流程？"
+                onClose={() => setConfirmOpen(false)}
+                width={400}
+                nested
+                footer={
+                    <div className="ae-drawer-actions">
+                        <Button onClick={() => setConfirmOpen(false)}>取消</Button>
+                        <Button
+                            variant="primary"
+                            onClick={() => {
+                                if (!selected) return;
+                                onConfirm(selected);
+                                setConfirmOpen(false);
+                            }}
+                        >
                             覆盖并加载
                         </Button>
                     </div>
                 }
             >
-                <p>当前执行流程已有内容，加载「标准自动入厂流程」将覆盖现有步骤与参数。</p>
-            </Modal>
+                <p>
+                    当前执行流程已有内容，加载「{selected?.name}」将覆盖现有步骤与参数。
+                </p>
+            </Drawer>
         </>
     );
 }
@@ -328,13 +431,14 @@ export function CopyFlowDrawer({
                 </FieldLike>
             </Drawer>
 
-            <Modal
+            <Drawer
                 open={confirmOpen}
                 title="确认覆盖复制？"
                 onClose={() => setConfirmOpen(false)}
-                width={420}
+                width={400}
+                nested
                 footer={
-                    <div className="ae-modal-actions">
+                    <div className="ae-drawer-actions">
                         <Button onClick={() => setConfirmOpen(false)}>取消</Button>
                         <Button
                             variant="primary"
@@ -354,7 +458,7 @@ export function CopyFlowDrawer({
                     将把「{source.name}」的流程配置复制到「{target?.name}」。
                     {target ? '若目标模块已存在配置参数，将按覆盖更新策略替换。' : null}
                 </p>
-            </Modal>
+            </Drawer>
         </>
     );
 }

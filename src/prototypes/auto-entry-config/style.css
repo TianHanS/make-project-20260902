@@ -1863,3 +1863,238 @@ body,
         width: 100%;
     }
 }
+
+/* ============================ 流程抽屉交互调整 ============================ */
+.ae-overlay-drawer.is-nested {
+    z-index: 1400;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.ae-flow-lib-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: start;
+}
+
+.ae-flow-lib-main {
+    min-width: 0;
+}
+
+.ae-flow-lib-main p {
+    margin: 0;
+}
+
+.ae-icon-add {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    border: 1px solid var(--ae-primary-border);
+    border-radius: var(--ae-radius);
+    background: var(--ae-primary-bg);
+    color: var(--ae-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 2px;
+}
+
+.ae-icon-add:hover {
+    background: var(--ae-primary);
+    border-color: var(--ae-primary);
+    color: #fff;
+}
+
+.ae-tpl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ae-tpl-card {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    text-align: left;
+    padding: 12px;
+    border: 1px solid var(--ae-border);
+    border-radius: var(--ae-radius);
+    background: #fff;
+    cursor: pointer;
+    font: inherit;
+}
+
+.ae-tpl-card:hover {
+    border-color: var(--ae-primary-border);
+}
+
+.ae-tpl-card.is-selected {
+    border-color: var(--ae-primary);
+    background: var(--ae-primary-bg);
+    box-shadow: 0 0 0 1px var(--ae-primary);
+}
+
+.ae-tpl-radio {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    border-radius: 50%;
+    border: 1px solid var(--ae-border);
+    background: #fff;
+    position: relative;
+}
+
+.ae-tpl-card.is-selected .ae-tpl-radio {
+    border-color: var(--ae-primary);
+}
+
+.ae-tpl-card.is-selected .ae-tpl-radio::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--ae-primary);
+}
+
+.ae-tpl-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.ae-tpl-body strong {
+    font-size: 14px;
+    color: var(--ae-text);
+}
+
+.ae-tpl-body span {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ae-text-tertiary);
+}
+
+/* ============================ 消息通知配置 ============================ */
+.ae-msg-cfg {
+    margin-top: 8px;
+}
+
+.ae-msg-cfg-head h4 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ae-msg-cfg-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ae-primary);
+    flex: none;
+}
+
+.ae-msg-cfg-head p {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: var(--ae-text-tertiary);
+    line-height: 1.55;
+}
+
+.ae-msg-placeholders {
+    padding: 10px 12px;
+    border-radius: var(--ae-radius);
+    background: var(--ae-primary-bg);
+    border: 1px solid var(--ae-primary-border);
+    margin-bottom: 14px;
+}
+
+.ae-msg-placeholders-label {
+    font-size: 12px;
+    color: var(--ae-primary-active);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.ae-msg-placeholders-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ae-msg-ph-btn {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: var(--ae-radius-sm);
+    border: 1px solid var(--ae-primary);
+    background: #fff;
+    color: var(--ae-primary);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.ae-msg-ph-btn:hover {
+    background: var(--ae-primary);
+    color: #fff;
+}
+
+.ae-msg-ph-tip {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--ae-text-tertiary);
+}
+
+.ae-msg-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.ae-msg-card {
+    border: 1px solid var(--ae-border);
+    border-radius: var(--ae-radius);
+    padding: 12px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ae-msg-card.is-active {
+    border-color: var(--ae-primary-border);
+    box-shadow: 0 0 0 1px rgba(22, 119, 255, 0.15);
+}
+
+.ae-msg-card.is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.ae-msg-card h5 {
+    margin: 0 0 2px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ae-msg-card .ae-checkbox {
+    margin: 0;
+}
+
+.ae-msg-card .ae-input {
+    width: 100%;
+}
+
+@media (max-width: 720px) {
+    .ae-msg-grid {
+        grid-template-columns: 1fr;
+    }
+}
