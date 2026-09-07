@@ -100,8 +100,8 @@
 
 ### 设计规范来源
 
-- **主题**：项目默认 `src/themes/antd-new`
-- **设计规范**：`src/themes/antd-new/DESIGN-SPEC.md`
+- **主题视觉**：浅色 Ant Design 风格（本地轻量组件实现，不依赖 `antd` / `@ant-design/icons` / `dayjs` 包）
+- **设计参考**：`src/themes/antd-new/DESIGN-SPEC.md`
 - **设计方法**：管理后台 `/skills/default-design-guide-minimal/SKILL.md`
 
 ### 组件状态

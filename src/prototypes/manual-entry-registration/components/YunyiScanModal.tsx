@@ -2,8 +2,8 @@
  * 云驿扫码弹窗：扫描司机手机运单二维码
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Modal, Spin } from 'antd';
-import { CheckCircleFilled, ScanOutlined } from '@ant-design/icons';
+import { Button, Modal, Spin } from './ui';
+import { CheckCircleFilled, ScanOutlined } from './icons';
 import { yunyiExpiredSample, yunyiSample } from '../data';
 
 type Phase = 'scanning' | 'success';

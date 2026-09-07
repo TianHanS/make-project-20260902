@@ -2,8 +2,7 @@
  * 人工选择来煤计划：右侧抽屉，支持供应商/矿点/煤种筛选，行单选
  */
 import React, { useMemo, useState } from 'react';
-import { Button, Drawer, Radio, Select, Space, Table } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Button, Drawer, Radio, Select, Space, Table, type ColumnsType } from './ui';
 import {
   PLANS,
   uniqueCoalTypes,

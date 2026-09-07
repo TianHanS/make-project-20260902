@@ -2,7 +2,7 @@
  * 表单字段行：只读下划线 / 可编辑 InputNumber / Select
  */
 import React from 'react';
-import { InputNumber, Select } from 'antd';
+import { InputNumber, Select } from './ui';
 
 interface Props {
   label: string;
@@ -64,7 +64,9 @@ const FormFieldRow: React.FC<Props> = ({
           value={selectValue || undefined}
           placeholder="请选择"
           options={selectOptions.map((o) => ({ value: o, label: o }))}
-          onChange={onSelectChange}
+          onChange={(v) => {
+            if (v != null) onSelectChange(v);
+          }}
         />
       </div>
     );

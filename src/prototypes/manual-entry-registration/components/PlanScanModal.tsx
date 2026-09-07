@@ -2,7 +2,7 @@
  * 计划码扫码弹窗：ESC 或关闭退出扫描
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Modal, Space } from 'antd';
+import { Button, Modal, Space } from './ui';
 import { PLANS } from '../data';
 
 interface Props {

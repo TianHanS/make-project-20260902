@@ -2,7 +2,7 @@
  * 扫码枪 / 矿发卡输入。按钮进入加载后聚焦输入，支持粘贴与示例填充。
  */
 import React, { useState } from 'react';
-import { Alert, Button, Input, Modal, Space } from 'antd';
+import { Alert, Button, Input, Modal, Space } from './ui';
 
 export type ScanKind = 'plan-qr' | 'yunyi' | 'mine-card';
 

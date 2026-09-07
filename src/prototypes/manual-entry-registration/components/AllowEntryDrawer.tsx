@@ -2,7 +2,7 @@
  * 允许车辆入厂登记：禁止入厂时人工确认放行
  */
 import React, { useState } from 'react';
-import { Button, Descriptions, Drawer, Input, Space, Tag, message } from 'antd';
+import { Button, Descriptions, Drawer, Input, Space, Tag, message } from './ui';
 import type { EntryPermit } from '../data';
 
 export const ALLOW_ENTRY_TOOLTIP =

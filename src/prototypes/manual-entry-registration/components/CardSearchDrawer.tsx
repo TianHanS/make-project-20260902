@@ -2,8 +2,8 @@
  * 煤样卡读卡查询：仅展示读卡结果，不回填表单
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Descriptions, Drawer, Result, Spin, message } from 'antd';
-import { CheckCircleFilled, CreditCardOutlined } from '@ant-design/icons';
+import { Button, Descriptions, Drawer, Result, Spin, message } from './ui';
+import { CheckCircleFilled, CreditCardOutlined } from './icons';
 import { findPlan, findPreEntry, type CoalPlan } from '../data';
 
 type Phase = 'idle' | 'reading' | 'success' | 'timeout';

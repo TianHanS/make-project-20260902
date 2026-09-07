@@ -2,13 +2,12 @@
  * 云驿自动读码登记：右侧抽屉持续等待扫码 → 解析校验 → 展示运单 → 自动登记 → 保留结果等待下一车
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Descriptions, Drawer, Space, Tag, message } from 'antd';
+import { Button, Descriptions, Drawer, Space, Tag, message, formatDateTime } from './ui';
 import {
   CheckCircleFilled,
   CloseCircleFilled,
   ScanOutlined,
-} from '@ant-design/icons';
-import dayjs from 'dayjs';
+} from './icons';
 import {
   findPlan,
   yunyiExpiredSample,
@@ -137,7 +136,7 @@ const YunyiAutoDrawer: React.FC<Props> = ({ open, site, onClose, onRegistered })
     // 原型：偶发失败便于演示失败态
     const success = Math.random() > 0.12;
     const failReason = success ? undefined : '车辆未允许入厂或计划状态异常';
-    const registerAt = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    const registerAt = formatDateTime();
 
     message.destroy('auto-reg');
     if (success) {

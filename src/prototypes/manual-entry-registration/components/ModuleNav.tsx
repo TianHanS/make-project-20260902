@@ -8,7 +8,7 @@ import {
   FileTextOutlined,
   InboxOutlined,
   SwapOutlined,
-} from '@ant-design/icons';
+} from './icons';
 import type { ModuleCode, ModuleMenu } from '../data';
 
 const ICONS: Record<ModuleCode, React.ReactNode> = {

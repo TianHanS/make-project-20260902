@@ -2,8 +2,7 @@
  * 选择来煤计划
  */
 import React, { useState } from 'react';
-import { Button, Modal, Radio, Table } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Button, Modal, Radio, Table, type ColumnsType } from './ui';
 import { PLANS, type CoalPlan } from '../data';
 
 interface Props {

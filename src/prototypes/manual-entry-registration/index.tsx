@@ -13,16 +13,19 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
-  ConfigProvider,
   Empty,
+  MessageHost,
   Popconfirm,
   Select,
   Space,
   Spin,
   Table,
   Tag,
+  formatDateTime,
   message,
-} from 'antd';
+  parseTime,
+  type ColumnsType,
+} from './components/ui';
 import {
   ClearOutlined,
   CreditCardOutlined,
@@ -30,10 +33,7 @@ import {
   QrcodeOutlined,
   ScanOutlined,
   ThunderboltOutlined,
-} from '@ant-design/icons';
-import zhCN from 'antd/locale/zh_CN';
-import dayjs, { type Dayjs } from 'dayjs';
-import type { ColumnsType } from 'antd/es/table';
+} from './components/icons';
 import './style.css';
 import CardSearchDrawer from './components/CardSearchDrawer';
 import FormFieldRow from './components/FormFieldRow';
@@ -80,7 +80,7 @@ interface FormValues {
   gross?: number | null;
   tare?: number | null;
   net?: number | null;
-  shipTime?: Dayjs | null;
+  shipTime?: string | null;
   station?: string;
   samplePos?: string;
   weighPos?: string;
@@ -147,7 +147,7 @@ const Component: React.FC = () => {
     setValues((prev) => ({
       ...prev,
       ...base,
-      shipTime: plan.shipTime ? dayjs(plan.shipTime) : null,
+      shipTime: plan.shipTime || null,
       gross: plan.gross,
       tare: plan.tare,
       net: plan.net,
@@ -211,7 +211,9 @@ const Component: React.FC = () => {
       ...prev,
       ...base,
       plate: parsed.plate,
-      shipTime: parsed.stationTime ? dayjs(parsed.stationTime) : dayjs(plan.shipTime),
+      shipTime: parsed.stationTime
+        ? formatDateTime(parsed.stationTime)
+        : plan.shipTime || null,
       gross: parsed.gross,
       tare: parsed.tare,
       net: parsed.net,
@@ -237,7 +239,9 @@ const Component: React.FC = () => {
       ...emptyForm(),
       ...base,
       plate: parsed.plate || plan.plate,
-      shipTime: parsed.stationTime ? dayjs(parsed.stationTime) : dayjs(plan.shipTime),
+      shipTime: parsed.stationTime
+        ? formatDateTime(parsed.stationTime)
+        : plan.shipTime || null,
       gross: parsed.gross ?? plan.gross,
       tare: parsed.tare ?? plan.tare,
       net: parsed.net ?? plan.net,
@@ -249,7 +253,7 @@ const Component: React.FC = () => {
 
     if (!success) return;
 
-    const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    const now = formatDateTime();
     const row: EntryRecord = {
       id: `R${Date.now()}`,
       serialNo: nextSerial(records),
@@ -293,7 +297,7 @@ const Component: React.FC = () => {
 
     const plate = values.plate!.trim();
     const serialNo = nextSerial(records);
-    const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    const now = formatDateTime();
     const row: EntryRecord = {
       id: `R${Date.now()}`,
       serialNo,
@@ -359,7 +363,7 @@ const Component: React.FC = () => {
     () =>
       records
         .filter((r) => r.siteId === site.id)
-        .sort((a, b) => dayjs(b.enterAt).valueOf() - dayjs(a.enterAt).valueOf()),
+        .sort((a, b) => parseTime(b.enterAt) - parseTime(a.enterAt)),
     [records, site.id],
   );
 
@@ -367,7 +371,7 @@ const Component: React.FC = () => {
     const el = listBodyRef.current;
     if (!el) return;
     const sync = () => {
-      const head = el.querySelector('.ant-table-thead') as HTMLElement | null;
+      const head = el.querySelector('.mer-table-thead') as HTMLElement | null;
       const headH = head?.offsetHeight ?? 39;
       setTableY(Math.max(120, el.clientHeight - headH - 2));
     };
@@ -484,7 +488,7 @@ const Component: React.FC = () => {
             {showField('FIELD_fromDate') && (
               <FormFieldRow
                 label="发站时间"
-                value={values.shipTime ? values.shipTime.format('YYYY-MM-DD HH:mm:ss') : undefined}
+                value={values.shipTime || undefined}
               />
             )}
           </div>
@@ -559,7 +563,7 @@ const Component: React.FC = () => {
 
     return (
       <div className="mer-module-placeholder">
-        <Empty description="暂未开发" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description="暂未开发" />
       </div>
     );
   };
@@ -567,135 +571,136 @@ const Component: React.FC = () => {
   const moduleTitle = MODULE_LABELS[moduleCode];
 
   return (
-    <ConfigProvider locale={zhCN} componentSize="small">
-      <div className="mer-root">
-        <header className="mer-context-bar">
-          <div className="mer-context-site">
-            <span className="mer-site-label">入厂点</span>
-            <Select
-              className="mer-site-dropdown"
-              value={siteId}
-              options={SITES.map((s) => ({ value: s.id, label: s.name }))}
-              onChange={handleSiteChange}
-            />
-          </div>
-          <ModuleNav
-            menus={permittedModules}
-            active={moduleCode}
-            onChange={(code) => {
-              setModuleCode(code);
-              setValues(emptyForm());
+    <div className="mer-root">
+      <MessageHost />
+      <header className="mer-context-bar">
+        <div className="mer-context-site">
+          <span className="mer-site-label">入厂点</span>
+          <Select
+            className="mer-site-dropdown"
+            value={siteId}
+            options={SITES.map((s) => ({ value: s.id, label: s.name }))}
+            onChange={(id) => {
+              if (id) handleSiteChange(id);
             }}
           />
-          {isCoalEntry && showOp('OPERATION_yunYiCodeAuto') && (
-            <Popconfirm
-              title="确认启用读码自动登记模式？"
-              description={
-                <div className="mer-auto-confirm-desc">
-                  请保持页面置顶，收起浏览器、操作键盘或可通过鼠标点击退出扫码自动登记识别模式
-                  <div className="mer-auto-confirm-mode">
-                    当前配置：
-                    {site.GOABLE_AotoYunYiRegister === 'preEnter' ? '预入厂登记' : '入厂登记'}
-                    （GOABLE_AotoYunYiRegister）
-                  </div>
-                </div>
-              }
-              okText="确认启用"
-              cancelText="取消"
-              onConfirm={() => setYunyiAutoOpen(true)}
-            >
-              <Button
-                type="primary"
-                ghost
-                icon={<ThunderboltOutlined />}
-                className="mer-auto-tag"
-              >
-                云驿自动模式
-              </Button>
-            </Popconfirm>
-          )}
-        </header>
-
-        <section className="mer-card mer-form-card">
-          <div className="mer-card-hd">
-            <div className="mer-card-title">
-              <h2>{moduleTitle}</h2>
-              <Tag color="processing" className="mer-current-site">
-                {site.name}
-              </Tag>
-            </div>
-            {isCoalEntry && (
-              <div className="mer-card-actions">
-                <span className="mer-action-group-label">数据获取</span>
-                <div className="mer-action-group">
-                  {showOp('OPERATION_manualSelectPlan') && (
-                    <Button icon={<PlusSquareOutlined />} onClick={() => setPlanOpen(true)}>
-                      人工选择计划
-                    </Button>
-                  )}
-                  {showOp('OPERATION_planCode') && (
-                    <Button icon={<QrcodeOutlined />} onClick={() => setPlanScanOpen(true)}>
-                      计划码扫码
-                    </Button>
-                  )}
-                  {showOp('OPERATION_yunYiCode') && (
-                    <Button icon={<ScanOutlined />} onClick={() => setYunyiOpen(true)}>
-                      云驿扫码
-                    </Button>
-                  )}
-                  {showOp('OPERATION_cardNo1Search') && (
-                    <Button icon={<CreditCardOutlined />} onClick={() => setCardSearchOpen(true)}>
-                      煤样卡查询
-                    </Button>
-                  )}
+        </div>
+        <ModuleNav
+          menus={permittedModules}
+          active={moduleCode}
+          onChange={(code) => {
+            setModuleCode(code);
+            setValues(emptyForm());
+          }}
+        />
+        {isCoalEntry && showOp('OPERATION_yunYiCodeAuto') && (
+          <Popconfirm
+            title="确认启用读码自动登记模式？"
+            description={
+              <div className="mer-auto-confirm-desc">
+                请保持页面置顶，收起浏览器、操作键盘或可通过鼠标点击退出扫码自动登记识别模式
+                <div className="mer-auto-confirm-mode">
+                  当前配置：
+                  {site.GOABLE_AotoYunYiRegister === 'preEnter' ? '预入厂登记' : '入厂登记'}
+                  （GOABLE_AotoYunYiRegister）
                 </div>
               </div>
-            )}
+            }
+            okText="确认启用"
+            cancelText="取消"
+            onConfirm={() => setYunyiAutoOpen(true)}
+          >
+            <Button
+              type="primary"
+              ghost
+              icon={<ThunderboltOutlined />}
+              className="mer-auto-tag"
+            >
+              云驿自动模式
+            </Button>
+          </Popconfirm>
+        )}
+      </header>
+
+      <section className="mer-card mer-form-card">
+        <div className="mer-card-hd">
+          <div className="mer-card-title">
+            <h2>{moduleTitle}</h2>
+            <Tag color="processing" className="mer-current-site">
+              {site.name}
+            </Tag>
           </div>
-          {renderModuleBody()}
+          {isCoalEntry && (
+            <div className="mer-card-actions">
+              <span className="mer-action-group-label">数据获取</span>
+              <div className="mer-action-group">
+                {showOp('OPERATION_manualSelectPlan') && (
+                  <Button icon={<PlusSquareOutlined />} onClick={() => setPlanOpen(true)}>
+                    人工选择计划
+                  </Button>
+                )}
+                {showOp('OPERATION_planCode') && (
+                  <Button icon={<QrcodeOutlined />} onClick={() => setPlanScanOpen(true)}>
+                    计划码扫码
+                  </Button>
+                )}
+                {showOp('OPERATION_yunYiCode') && (
+                  <Button icon={<ScanOutlined />} onClick={() => setYunyiOpen(true)}>
+                    云驿扫码
+                  </Button>
+                )}
+                {showOp('OPERATION_cardNo1Search') && (
+                  <Button icon={<CreditCardOutlined />} onClick={() => setCardSearchOpen(true)}>
+                    煤样卡查询
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        {renderModuleBody()}
+      </section>
+
+      {isCoalEntry && (
+        <section className="mer-card mer-list-card">
+          <div className="mer-card-hd">
+            <h2>入厂车辆列表</h2>
+            <span className="mer-list-count">共 {filteredRecords.length} 条 · 按入厂时间倒序</span>
+          </div>
+          <div className="mer-list-body" ref={listBodyRef}>
+            <Table
+              rowKey="id"
+              size="small"
+              columns={columns}
+              dataSource={filteredRecords}
+              pagination={false}
+              scroll={{ x: 1280, y: tableY }}
+            />
+          </div>
         </section>
+      )}
 
-        {isCoalEntry && (
-          <section className="mer-card mer-list-card">
-            <div className="mer-card-hd">
-              <h2>入厂车辆列表</h2>
-              <span className="mer-list-count">共 {filteredRecords.length} 条 · 按入厂时间倒序</span>
-            </div>
-            <div className="mer-list-body" ref={listBodyRef}>
-              <Table
-                rowKey="id"
-                size="small"
-                columns={columns}
-                dataSource={filteredRecords}
-                pagination={false}
-                scroll={{ x: 1280, y: tableY }}
-              />
-            </div>
-          </section>
-        )}
+      <PlanSelectDrawer open={planOpen} onClose={() => setPlanOpen(false)} onPick={handlePlanPick} />
+      <YunyiScanModal open={yunyiOpen} onClose={() => setYunyiOpen(false)} onSuccess={handleYunyiScan} />
+      <YunyiAutoDrawer
+        open={yunyiAutoOpen}
+        site={site}
+        onClose={() => setYunyiAutoOpen(false)}
+        onRegistered={handleYunyiAutoRegistered}
+      />
+      <PlanScanModal
+        open={planScanOpen}
+        onClose={() => setPlanScanOpen(false)}
+        onSubmit={handlePlanScan}
+      />
+      <CardSearchDrawer open={cardSearchOpen} onClose={() => setCardSearchOpen(false)} />
 
-        <PlanSelectDrawer open={planOpen} onClose={() => setPlanOpen(false)} onPick={handlePlanPick} />
-        <YunyiScanModal open={yunyiOpen} onClose={() => setYunyiOpen(false)} onSuccess={handleYunyiScan} />
-        <YunyiAutoDrawer
-          open={yunyiAutoOpen}
-          site={site}
-          onClose={() => setYunyiAutoOpen(false)}
-          onRegistered={handleYunyiAutoRegistered}
-        />
-        <PlanScanModal
-          open={planScanOpen}
-          onClose={() => setPlanScanOpen(false)}
-          onSubmit={handlePlanScan}
-        />
-        <CardSearchDrawer open={cardSearchOpen} onClose={() => setCardSearchOpen(false)} />
-
-        {submitting && (
-          <div className="mer-global-spin">
-            <Spin tip="正在提交登记…" />
-          </div>
-        )}
-      </div>
-    </ConfigProvider>
+      {submitting && (
+        <div className="mer-global-spin">
+          <Spin tip="正在提交登记…" />
+        </div>
+      )}
+    </div>
   );
 };
 

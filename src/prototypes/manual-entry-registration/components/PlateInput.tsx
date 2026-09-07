@@ -2,7 +2,7 @@
  * 车牌号码编辑框：输入三位及以上自动联想；不合规车牌前端提示
  */
 import React, { useMemo, useRef, useState } from 'react';
-import { AutoComplete, message } from 'antd';
+import { AutoComplete, message } from './ui';
 import { isValidPlate, searchPlates } from '../data';
 
 interface Props {

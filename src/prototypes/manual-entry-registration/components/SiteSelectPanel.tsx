@@ -2,7 +2,7 @@
  * 登记点选择：进入页面后首选，大卡片列表排开
  */
 import React from 'react';
-import { EnvironmentOutlined, RightOutlined } from '@ant-design/icons';
+import { EnvironmentOutlined, RightOutlined } from './icons';
 import { SITE_PRESENTATION, type SiteConfig } from '../data';
 
 interface Props {
