@@ -3,8 +3,6 @@
  * 数据均为贴近业务的脱敏样例，日期随运行时「今天」动态生成，保证默认进入即有数据。
  */
 
-export type PlanStatus = '计划完结' | '未完结';
-
 export interface UnloadPoint {
     id: string;
     name: string; // 卸煤点名称（唯一）
@@ -34,7 +32,6 @@ export interface UnloadDetail {
     unloadPoint: string; // 卸煤点（空 = 未分配）
     coalYard: string; // 关联煤场（由卸煤点派生）
     zone: string; // 关联分区（由卸煤点派生）
-    status: PlanStatus;
     operator: string; // 操作人
     operatedAt: string; // 操作时间
     createdBy: string; // 创建人
@@ -163,16 +160,6 @@ export const HISTORY_UNLOAD_POINT_ID: Record<string, string> = {
 
 /* ---------------- 卸煤要求明细（矿点卸煤管理） ---------------- */
 
-interface DetailPlan {
-    mineId: string;
-    date: string;
-    planSeq: number;
-    unloadPoint: string;
-    status: PlanStatus;
-    operator: string;
-    operatedAt: string;
-}
-
 export function buildInitialDetails(): UnloadDetail[] {
     let seq = 0;
     const t = (date: string, hhmm: string) => `${date} ${hhmm}`;
@@ -185,7 +172,6 @@ export function buildInitialDetails(): UnloadDetail[] {
         date: string,
         planSeq: number,
         unloadPoint: string,
-        status: PlanStatus,
         operator: string,
         operatedAt: string,
         createdBy = '系统',
@@ -203,7 +189,6 @@ export function buildInitialDetails(): UnloadDetail[] {
             unloadPoint,
             coalYard: '',
             zone: '',
-            status,
             operator,
             operatedAt,
             createdBy,
@@ -214,22 +199,22 @@ export function buildInitialDetails(): UnloadDetail[] {
 
     const rows: UnloadDetail[] = [
         // —— 今日（含历史已分配 + 若干未分配，供自动匹配演示）——
-        make('m1', '岭北', '岭北', '岭北矿务局煤矿', TODAY, 1, '卸煤点A', '未完结', '王工', t(TODAY, '08:36')),
-        make('m2', '东山', '东山', '东山煤业有限公司', TODAY, 2, '卸煤点C', '未完结', '王工', t(TODAY, '08:41')),
-        make('m3', '东山2', '东山2', '东山能源集团', TODAY, 3, '', '未完结', '系统', t(TODAY, '08:00')),
-        make('m4', '华能', '华能', '华能一号矿', TODAY, 4, '', '未完结', '系统', t(TODAY, '08:00')),
-        make('m5', '兴盛', '兴盛', '兴盛煤业', TODAY, 5, '', '未完结', '系统', t(TODAY, '08:00')),
-        make('m6', '', '富强煤矿', '富强煤矿', TODAY, 6, '卸煤点B', '未完结', '李工', t(TODAY, '09:02')),
-        make('m7', '大成', '大成', '大成煤业', TODAY, 7, '', '未完结', '系统', t(TODAY, '08:00')),
-        make('m8', '平安', '平安', '平安矿', TODAY, 8, '卸煤点E', '计划完结', '李工', t(TODAY, '09:20')),
+        make('m1', '岭北', '岭北', '岭北矿务局煤矿', TODAY, 1, '卸煤点A', '王工', t(TODAY, '08:36')),
+        make('m2', '东山', '东山', '东山煤业有限公司', TODAY, 2, '卸煤点C', '王工', t(TODAY, '08:41')),
+        make('m3', '东山2', '东山2', '东山能源集团', TODAY, 3, '', '系统', t(TODAY, '08:00')),
+        make('m4', '华能', '华能', '华能一号矿', TODAY, 4, '', '系统', t(TODAY, '08:00')),
+        make('m5', '兴盛', '兴盛', '兴盛煤业', TODAY, 5, '', '系统', t(TODAY, '08:00')),
+        make('m6', '', '富强煤矿', '富强煤矿', TODAY, 6, '卸煤点B', '李工', t(TODAY, '09:02')),
+        make('m7', '大成', '大成', '大成煤业', TODAY, 7, '', '系统', t(TODAY, '08:00')),
+        make('m8', '平安', '平安', '平安矿', TODAY, 8, '卸煤点E', '李工', t(TODAY, '09:20')),
         // —— 明日（仅 3 条，供「后一日」演示）——
-        make('m2', '东山', '东山', '东山煤业有限公司', TOMORROW, 1, '', '未完结', '系统', t(TOMORROW, '08:00')),
-        make('m4', '华能', '华能', '华能一号矿', TOMORROW, 2, '卸煤点A', '未完结', '系统', t(TOMORROW, '08:00')),
-        make('m8', '平安', '平安', '平安矿', TOMORROW, 3, '', '未完结', '系统', t(TOMORROW, '08:00')),
+        make('m2', '东山', '东山', '东山煤业有限公司', TOMORROW, 1, '', '系统', t(TOMORROW, '08:00')),
+        make('m4', '华能', '华能', '华能一号矿', TOMORROW, 2, '卸煤点A', '系统', t(TOMORROW, '08:00')),
+        make('m8', '平安', '平安', '平安矿', TOMORROW, 3, '', '系统', t(TOMORROW, '08:00')),
         // —— 昨日（历史，供「前一日」演示）——
-        make('m1', '岭北', '岭北', '岭北矿务局煤矿', YESTERDAY, 1, '卸煤点A', '计划完结', '王工', t(YESTERDAY, '17:45')),
-        make('m3', '东山2', '东山2', '东山能源集团', YESTERDAY, 2, '卸煤点D', '计划完结', '王工', t(YESTERDAY, '17:50')),
-        make('m5', '兴盛', '兴盛', '兴盛煤业', YESTERDAY, 3, '卸煤点C', '计划完结', '李工', t(YESTERDAY, '17:52')),
+        make('m1', '岭北', '岭北', '岭北矿务局煤矿', YESTERDAY, 1, '卸煤点A', '王工', t(YESTERDAY, '17:45')),
+        make('m3', '东山2', '东山2', '东山能源集团', YESTERDAY, 2, '卸煤点D', '王工', t(YESTERDAY, '17:50')),
+        make('m5', '兴盛', '兴盛', '兴盛煤业', YESTERDAY, 3, '卸煤点C', '李工', t(YESTERDAY, '17:52')),
     ];
 
     // 依据卸煤点回填煤场 / 分区

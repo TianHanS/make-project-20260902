@@ -49,7 +49,7 @@ import {
     TODAY,
 } from '../data';
 
-type SortKey = 'short' | 'led' | 'full' | 'unloadPoint' | 'status' | 'operatedAt' | 'createdAt';
+type SortKey = 'short' | 'led' | 'full' | 'unloadPoint' | 'operatedAt' | 'createdAt';
 
 interface ColumnDef {
     key: string;
@@ -66,8 +66,6 @@ const COLUMNS: ColumnDef[] = [
     { key: 'led', title: 'LED显示矿点名', sortable: true, keyCol: true },
     { key: 'full', title: '矿点名称', sortable: true, keyCol: true },
     { key: 'unloadPoint', title: '卸煤点', sortable: true, keyCol: true },
-    { key: 'status', title: '状态', sortable: true },
-    { key: 'planId', title: '计划id', sortable: true },
     { key: 'planSerial', title: '计划流水号', sortable: true },
     { key: 'operator', title: '操作人', sortable: false },
     { key: 'operatedAt', title: '操作时间', sortable: true },
@@ -88,8 +86,6 @@ function sortValue(r: UnloadDetail, key: SortKey): string {
             return r.mineFullName;
         case 'unloadPoint':
             return r.unloadPoint;
-        case 'status':
-            return r.status;
         case 'operatedAt':
             return r.operatedAt;
         case 'createdAt':
@@ -360,7 +356,6 @@ export default function MineUnloadPage() {
             unloadPoint: p?.name || '',
             coalYard: p?.coalYard || '',
             zone: p?.zone || '',
-            status: '未完结',
             operator: '王工',
             operatedAt: now,
             createdBy: '王工',
@@ -390,7 +385,6 @@ export default function MineUnloadPage() {
                           unloadPoint: p?.name || '',
                           coalYard: p?.coalYard || '',
                           zone: p?.zone || '',
-                          status: '未完结',
                           operator: '王工',
                           operatedAt: now,
                       }
@@ -493,8 +487,6 @@ export default function MineUnloadPage() {
                 return <span className="cd-cell-primary cd-td-key">{r.ledName || '—'}</span>;
             case 'full':
                 return <span className="cd-td-key">{r.mineFullName}</span>;
-            case 'planId':
-                return <span className="cd-cell-mono">{r.planId || '—'}</span>;
             case 'planSerial':
                 return <span className="cd-cell-mono">{r.planSerial || '—'}</span>;
             case 'unloadPoint':
@@ -511,8 +503,6 @@ export default function MineUnloadPage() {
                 ) : (
                     <Tag color="warning">未分配</Tag>
                 );
-            case 'status':
-                return r.status === '计划完结' ? <Tag color="success">计划完结</Tag> : <Tag color="processing">未完结</Tag>;
             case 'operator':
                 return <span>{r.operator}</span>;
             case 'operatedAt':
