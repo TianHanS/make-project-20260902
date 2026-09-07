@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>自动入厂流程配置（场景表单）· 主规格</title>
+  <style>
+    :root {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --primary: #1677ff;
+      --primary-ink: #0958d9;
+      --primary-soft: #e6f4ff;
+      --primary-surface: #f0f7ff;
+      --primary-border: #91caff;
+      --text: #222832;
+      --text-secondary: #4b5565;
+      --text-muted: #6f7888;
+      --text-placeholder: #8b94a3;
+      color: var(--text);
+      background: #f0f2f5;
+      scrollbar-gutter: stable;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px 20px 64px; }
+    .shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; width: min(1200px, 100%); margin: 0 auto; align-items: start; }
+    .sidebar { position: sticky; top: 32px; padding: 18px 14px; border: 1px solid #e5e6eb; border-radius: 8px; background: #fff; }
+    .sidebar-title { margin: 0 8px 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+    .page-nav { display: flex; flex-direction: column; gap: 4px; }
+    .page-nav button { width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; color: var(--text-secondary); background: transparent; font: inherit; font-size: 13px; line-height: 1.45; text-align: left; cursor: pointer; }
+    .page-nav button:hover, .page-nav button[aria-current="page"] { color: var(--primary-ink); background: var(--primary-soft); }
+    .page-nav button[aria-current="page"] { font-weight: 600; }
+    main { min-width: 0; padding: 40px; border: 1px solid #e5e6eb; border-radius: 8px; background: #fff; box-shadow: 0 4px 16px rgb(30 45 75 / 6%); }
+    h1 { margin: 0; font-size: 32px; line-height: 1.3; }
+    h2 { margin: 44px 0 20px; padding-bottom: 8px; border-bottom: 1px solid #e7eaf0; font-size: 21px; line-height: 1.55; }
+    h3 { margin: 28px 0 12px; font-size: 17px; line-height: 1.5; }
+    p, li { font-size: 15px; line-height: 1.9; }
+    p { margin: 16px 0; }
+    td, th { font-size: 14px; line-height: 1.65; }
+    .definition { margin: 16px 0 0; padding: 14px 16px; border-left: 3px solid var(--primary); color: var(--text-secondary); background: var(--primary-surface); }
+    .hint { color: var(--text-muted); font-size: 13px; }
+    ul { margin: 10px 0 20px; padding-left: 22px; }
+    .placeholder-list { padding-left: 0; }
+    .placeholder-list li { list-style: none; color: var(--text-placeholder); }
+    .placeholder-list li::before { margin-right: 8px; color: #b2bac6; content: "—"; }
+    table { width: 100%; margin-top: 14px; border-collapse: collapse; }
+    th, td { min-width: 100px; padding: 10px 12px; border: 1px solid #e5e6eb; text-align: left; vertical-align: top; }
+    th { background: #fafafa; }
+    td:empty::after { content: "—"; color: var(--text-placeholder); }
+    code { padding: 2px 5px; border-radius: 5px; background: #eef1f6; font-size: 13px; }
+    .mermaid { display: flex; justify-content: center; margin: 12px 0 0; padding: 16px; overflow-x: auto; border: 1px solid var(--primary-border); border-radius: 8px; background: var(--primary-surface); }
+    .mermaid svg { max-width: 100%; height: auto; }
+    .tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 10px; background: #fff7e6; color: #d46b08; font-size: 12px; font-weight: 600; vertical-align: 2px; }
+    .tag.ok { background: var(--primary-soft); color: var(--primary-ink); }
+    .spec-page[hidden] { display: none; }
+    @media (max-width: 720px) {
+      body { padding: 0 8px 40px; }
+      .shell { display: block; }
+      .sidebar { position: sticky; top: 0; z-index: 10; margin: 0 -8px 12px; padding: 10px 8px; border-width: 0 0 1px; border-radius: 0; }
+      .sidebar-title { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
+      .page-nav { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+      .page-nav::-webkit-scrollbar { display: none; }
+      .page-nav button { width: auto; flex: 0 0 auto; white-space: nowrap; }
+      main { padding: 24px 18px; border-radius: 8px; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tbody { display: grid; gap: 12px; }
+      tr { overflow: hidden; border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; }
+      td { display: grid; grid-template-columns: minmax(96px, 36%) minmax(0, 1fr); gap: 12px; min-width: 0; padding: 10px 12px; border: 0; border-bottom: 1px solid #e7eaf0; }
+      td:last-child { border-bottom: 0; }
+      td::before { content: attr(data-label); color: var(--text-secondary); font-size: 12px; font-weight: 600; line-height: 1.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <p class="sidebar-title">目录</p>
+      <nav class="page-nav" aria-label="规格文档页面">
+        <button type="button" data-page-target="overview" aria-current="page">当前方案</button>
+        <button type="button" data-page-target="pages">页面与内容</button>
+        <button type="button" data-page-target="params">表单参数</button>
+        <button type="button" data-page-target="interaction">交互与流程</button>
+        <button type="button" data-page-target="design">设计与决策</button>
+      </nav>
+    </aside>
+
+    <main>
+      <article class="spec-page" data-spec-page="overview">
+        <h1>自动入厂流程配置（场景表单）<span class="tag ok">已确认</span></h1>
+        <p class="definition">本文档是用户与 Agent 围绕当前原型进行方案沟通、确认和持续生成的事实依据。只维护当前有效方案，并简短记录会影响当前原型的重要用户决策和变更。主规格已确认，实现需与本文双向同步。</p>
+
+        <section id="current-plan">
+          <h2>当前方案</h2>
+          <ul>
+            <li><strong>原型意图：</strong>新建独立原型，在沿用自动化配置列表骨架的前提下，用「场景选择 → 基础/高级双 Tab 表单」重做 AER（自动入厂）流程配置体验。</li>
+            <li><strong>使用场景：</strong>现场实施人员在模块卡片上配置 / 复制自动入厂流程；标准化方案与现场不一致时可走自定义配置。</li>
+            <li><strong>当前表达：</strong>列表页与参考原型 <code>auto-entry-config</code> 基本一致；流程配置为右侧抽屉（先场景或直接表单）；表单固定入厂登记四步链路，不做自由子流程编排。旧版 <code>auto-entry-config</code> 保留对照，不覆盖。</li>
+          </ul>
+        </section>
+
+        <section id="facts-inputs">
+          <h2>事实与输入</h2>
+          <h3>用户确认事实</h3>
+          <ul>
+            <li>模块类型：AER 自动入厂。</li>
+            <li>卡片可用操作：<strong>流程配置</strong>、<strong>复制流程</strong>、<strong>控制操作</strong>；控制操作本期为占位，点击 Message 提示「本期仅演示流程配置」。</li>
+            <li>原型落点：新建独立目录 <code>auto-entry-config-form</code>（不改写旧原型）。</li>
+            <li>流程配置容器：右侧抽屉。</li>
+            <li>有可选场景时：展示场景列表 +「跳过场景 / 自定义配置」入口；无场景或选定后进入配置表单。</li>
+            <li>本期场景：仅「标准自动入厂」+ 自定义入口。</li>
+            <li>配置表单：<strong>基础参数</strong> / <strong>高级参数</strong> 两个 Tab；登记类型与关联入厂点名在两 Tab 双向同步。</li>
+            <li>高级参数：固定四步流程图（车辆识别 → 登记 → 车辆放行 → 现场复位还原），不可增删排序。</li>
+            <li>消息通知：每条为<strong>启用开关 + 文案</strong>。</li>
+            <li>设计基底：延续 <code>auto-entry-config</code> 的 Ant Design 后台浅色；主规格载体 HTML。</li>
+          </ul>
+          <h3>参考资料</h3>
+          <ul>
+            <li>用户 PRD：AER 自动入厂流程配置（场景 + 基础/高级参数）。</li>
+            <li>参考原型：<code>src/prototypes/auto-entry-config/</code>（列表骨架与视觉 tokens）。</li>
+          </ul>
+          <h3>当前假设</h3>
+          <ul>
+            <li>模块已有已保存配置时：打开流程配置直接进入表单并回填，可从顶栏「重选场景」回到场景列表。</li>
+            <li>选择「标准自动入厂」：写入场景默认值后进入表单（可再改）。</li>
+            <li>「自定义配置」：进入表单，基础字段用通用默认值（登记类型=来煤、非煤物资；入厂点待选）。</li>
+            <li>关联入厂点名：下拉单选，mock 若干入厂点；保存前必填。</li>
+            <li>登记类型切换时：高级 Tab 中与类型相关的通知项按适用性显隐（来煤/非煤组 vs 固废组）；「自动登记」时两组均可配。</li>
+            <li>复制流程：同类型 AER、排除自身、二次确认、覆盖目标配置（含场景来源标记）。</li>
+            <li>非 AER 卡片：控制设置 / 流程配置静态占位，提示本原型仅演示 AER。</li>
+            <li>鉴权、真实接口、设备联调、控制操作真实面板不在本期。</li>
+          </ul>
+        </section>
+
+        <section id="prototype-scope">
+          <h2>原型范围</h2>
+          <h3>本次呈现</h3>
+          <ul>
+            <li>自动化配置卡片列表（筛选、分页、AER 与若干其他类型 mock）。</li>
+            <li>AER：流程配置右侧抽屉（场景选择层 + 双 Tab 表单层）。</li>
+            <li>复制流程抽屉 + 二次确认。</li>
+            <li>控制操作占位提示。</li>
+          </ul>
+          <h3>本次不呈现</h3>
+          <ul>
+            <li>自由编排子流程库、快速配置多模板、全局参数独立抽屉（属旧原型能力）。</li>
+            <li>控制操作真实表单；多场景包（除标准自动入厂外）。</li>
+            <li>真实后端 / 设备联调 / 其他模块类型完整配置。</li>
+          </ul>
+        </section>
+
+        <section id="acceptance">
+          <h2>验收重点</h2>
+          <ul>
+            <li>AER 卡片可见三按钮：流程配置、复制流程、控制操作；控制操作为占位提示。</li>
+            <li>空配置打开：先场景列表（标准自动入厂 + 自定义）；选后进入双 Tab 表单。</li>
+            <li>基础 / 高级中登记类型与入厂点双向同步；高级 Tab 有同步提示文案。</li>
+            <li>高级 Tab：横向四步流程 + 各步配参；步骤不可增删排序。</li>
+            <li>通知项为开关 + 文案；放行道闸含「无」；复位等待默认 15s；道闸复位默认「无」。</li>
+            <li>复制到同类型其他模块，二次确认后覆盖并提示。</li>
+          </ul>
+        </section>
+      </article>
+
+      <article class="spec-page" data-spec-page="pages" hidden>
+        <h1>页面与内容方案</h1>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>页面/视图</th>
+                <th>页面作用</th>
+                <th>主要模块与内容</th>
+                <th>示例数据或素材</th>
+                <th>与其他页面的关系</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="页面/视图">自动化配置列表</td>
+                <td data-label="页面作用">浏览模块并进入 AER 能力</td>
+                <td data-label="主要模块与内容">筛选（模块名称、模块类型、查询）；卡片网格；AER：流程配置 / 复制流程 / 控制操作；分页</td>
+                <td data-label="示例数据或素材">南门入厂点（全自动入厂）VE-9 / AER 等</td>
+                <td data-label="与其他页面的关系">打开流程配置抽屉或复制抽屉</td>
+              </tr>
+              <tr>
+                <td data-label="页面/视图">流程配置 · 场景选择</td>
+                <td data-label="页面作用">选择标准场景或自定义</td>
+                <td data-label="主要模块与内容">场景卡片：标准自动入厂（名称+说明）；底部/旁侧「自定义配置」入口</td>
+                <td data-label="示例数据或素材">场景说明：根据读取的车辆信息，自动进行来煤、非煤入厂登记，并放行抬杆</td>
+                <td data-label="与其他页面的关系">进入表单层；已有配置时可由「重选场景」回到本层</td>
+              </tr>
+              <tr>
+                <td data-label="页面/视图">流程配置 · 表单层</td>
+                <td data-label="页面作用">编辑并保存流程参数</td>
+                <td data-label="主要模块与内容">顶栏模块名 + 可选「重选场景」；Tabs：基础参数 / 高级参数；底栏保存、取消</td>
+                <td data-label="示例数据或素材">见「表单参数」页</td>
+                <td data-label="与其他页面的关系">叠在列表之上的右侧抽屉内</td>
+              </tr>
+              <tr>
+                <td data-label="页面/视图">复制流程抽屉</td>
+                <td data-label="页面作用">将源配置覆盖到目标 AER</td>
+                <td data-label="主要模块与内容">源模块只读；目标下拉（同类型排除自身）；确认 → 二次确认 → Message</td>
+                <td data-label="示例数据或素材">同类型 AER mock</td>
+                <td data-label="与其他页面的关系">从列表卡片进入</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>场景</h3>
+        <table>
+          <thead><tr><th>场景</th><th>说明</th><th>进入表单后的默认</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="场景">标准自动入厂</td>
+              <td data-label="说明">根据读取的车辆信息，自动进行来煤、非煤入厂登记，并放行抬杆</td>
+              <td data-label="进入表单后的默认">登记类型=来煤、非煤物资；道闸控制=抬杆；复位等待=15；道闸复位=无；通知文案按标准预制</td>
+            </tr>
+            <tr>
+              <td data-label="场景">自定义配置</td>
+              <td data-label="说明">标准化方案与目标不一致时自行配参</td>
+              <td data-label="进入表单后的默认">登记类型默认来煤、非煤物资；入厂点空；其余用同套通用默认，不强制绑定场景说明文案</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="spec-page" data-spec-page="params" hidden>
+        <h1>表单参数方案</h1>
+
+        <h3>基础参数 Tab</h3>
+        <p class="hint">流程运行必须参数。</p>
+        <table>
+          <thead><tr><th>参数</th><th>控件</th><th>选项 / 默认</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="参数">*登记类型</td>
+              <td data-label="控件">下拉单选</td>
+              <td data-label="选项 / 默认">1 来煤、非煤物资（默认）；2 固废粉煤灰；3 自动登记</td>
+              <td data-label="说明">与高级 Tab 同名字段双向同步</td>
+            </tr>
+            <tr>
+              <td data-label="参数">*关联入厂点名</td>
+              <td data-label="控件">下拉单选</td>
+              <td data-label="选项 / 默认">mock 入厂点列表；无默认必选</td>
+              <td data-label="说明">与高级 Tab 双向同步；保存必填</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>高级参数 Tab</h3>
+        <p class="hint">Tab 旁小图标，悬停提示：如需改动更多流程信息、各环节消息通知内容，可按入厂登记子流程调整对应参数以达到需要的流程效果。</p>
+        <p>进入后顶部展示横向流程图提示：车辆识别 → 登记 → 车辆放行 → 现场复位还原。下方按步展示可配参数（点击节点可滚动/高亮对应区块）。</p>
+
+        <h4>1. 车辆识别</h4>
+        <table>
+          <thead><tr><th>参数</th><th>控件</th><th>默认假设</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="参数">车辆识别信息通知</td>
+              <td data-label="控件">启用开关 + 文案</td>
+              <td data-label="默认假设">启用；文案如「请上磅识别」</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>2. 登记</h4>
+        <table>
+          <thead><tr><th>参数</th><th>控件</th><th>选项 / 默认</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="参数">*登记类型</td>
+              <td data-label="控件">下拉单选</td>
+              <td data-label="选项 / 默认">同基础 Tab</td>
+              <td data-label="说明">旁注「与基础参数同步」</td>
+            </tr>
+            <tr>
+              <td data-label="参数">*关联入厂点名</td>
+              <td data-label="控件">下拉单选</td>
+              <td data-label="选项 / 默认">同基础 Tab</td>
+              <td data-label="说明">旁注「与基础参数同步」</td>
+            </tr>
+            <tr>
+              <td data-label="参数">来煤、非煤登记成功通知</td>
+              <td data-label="控件">开关 + 文案</td>
+              <td data-label="选项 / 默认">启用；成功类默认文案</td>
+              <td data-label="说明">登记类型为固废粉煤灰时可隐藏或禁用</td>
+            </tr>
+            <tr>
+              <td data-label="参数">来煤、非煤登记失败通知</td>
+              <td data-label="控件">开关 + 文案</td>
+              <td data-label="选项 / 默认">启用；失败类默认文案</td>
+              <td data-label="说明">同上</td>
+            </tr>
+            <tr>
+              <td data-label="参数">固废登记成功通知</td>
+              <td data-label="控件">开关 + 文案</td>
+              <td data-label="选项 / 默认">启用</td>
+              <td data-label="说明">登记类型为来煤、非煤时可隐藏或禁用</td>
+            </tr>
+            <tr>
+              <td data-label="参数">固废登记失败通知</td>
+              <td data-label="控件">开关 + 文案</td>
+              <td data-label="选项 / 默认">启用</td>
+              <td data-label="说明">同上</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>3. 车辆放行</h4>
+        <table>
+          <thead><tr><th>参数</th><th>控件</th><th>选项 / 默认</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="参数">道闸控制</td>
+              <td data-label="控件">单选</td>
+              <td data-label="选项 / 默认">1 抬杆（默认）；2 落杆；3 无</td>
+              <td data-label="说明">本环节对道闸的动作</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>4. 现场还原复位</h4>
+        <table>
+          <thead><tr><th>参数</th><th>控件</th><th>选项 / 默认</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="参数">复位等待时长 s</td>
+              <td data-label="控件">整数输入</td>
+              <td data-label="选项 / 默认">默认 15</td>
+              <td data-label="说明">前置登记结果在 LED 的通知保留多久后复位</td>
+            </tr>
+            <tr>
+              <td data-label="参数">道闸复位控制</td>
+              <td data-label="控件">单选</td>
+              <td data-label="选项 / 默认">0 无（默认）；1 抬杆；2 落杆</td>
+              <td data-label="说明">放行后现场道闸可按此复位；雷达自动落杆则配「无」</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="spec-page" data-spec-page="interaction" hidden>
+        <h1>交互与状态方案</h1>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>对象/场景</th><th>前置状态</th><th>用户操作</th><th>原型表现</th><th>后续状态</th></tr></thead>
+            <tbody>
+              <tr>
+                <td data-label="对象/场景">打开流程配置（空）</td>
+                <td data-label="前置状态">AER 无已存配置</td>
+                <td data-label="用户操作">点击「流程配置」</td>
+                <td data-label="原型表现">右侧抽屉进入场景选择层</td>
+                <td data-label="后续状态">可选场景或自定义</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">打开流程配置（已有）</td>
+                <td data-label="前置状态">AER 已有配置</td>
+                <td data-label="用户操作">点击「流程配置」</td>
+                <td data-label="原型表现">直接进入表单层并回填；可「重选场景」</td>
+                <td data-label="后续状态">可编辑保存</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">选标准场景</td>
+                <td data-label="前置状态">场景层</td>
+                <td data-label="用户操作">点击「标准自动入厂」并确认/进入</td>
+                <td data-label="原型表现">写入场景默认值，进入表单层</td>
+                <td data-label="后续状态">可微调后保存</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">自定义</td>
+                <td data-label="前置状态">场景层</td>
+                <td data-label="用户操作">点击「自定义配置」</td>
+                <td data-label="原型表现">进入表单层，通用默认值</td>
+                <td data-label="后续状态">自行配参</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">双 Tab 同步</td>
+                <td data-label="前置状态">表单层</td>
+                <td data-label="用户操作">改任一侧登记类型或入厂点</td>
+                <td data-label="原型表现">另一侧立即同步；通知组显隐随登记类型变化</td>
+                <td data-label="后续状态">字段一致</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">保存</td>
+                <td data-label="前置状态">表单层</td>
+                <td data-label="用户操作">点击「保存」</td>
+                <td data-label="原型表现">校验入厂点必填；成功 Message 并关闭</td>
+                <td data-label="后续状态">列表卡片可显示已配置</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">控制操作</td>
+                <td data-label="前置状态">AER 卡片</td>
+                <td data-label="用户操作">点击「控制操作」</td>
+                <td data-label="原型表现">Message：本期仅演示流程配置</td>
+                <td data-label="后续状态">无变更</td>
+              </tr>
+              <tr>
+                <td data-label="对象/场景">复制流程</td>
+                <td data-label="前置状态">源 AER</td>
+                <td data-label="用户操作">选目标 → 确认 → 二次确认</td>
+                <td data-label="原型表现">覆盖目标配置并提示</td>
+                <td data-label="后续状态">目标已配置</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>核心流程</h3>
+        <pre class="mermaid">flowchart TD
+  A[自动化配置列表] --> B{AER 操作}
+  B -->|流程配置| C{已有配置?}
+  C -->|否| D[场景选择层]
+  C -->|是| F[双 Tab 表单层]
+  D -->|标准自动入厂| E[写入场景默认]
+  D -->|自定义| G[通用默认]
+  E --> F
+  G --> F
+  F --> H[保存校验]
+  H --> I[落盘 mock / 关闭]
+  B -->|复制流程| J[复制抽屉]
+  J --> K[二次确认覆盖]
+  B -->|控制操作| L[占位提示]</pre>
+      </article>
+
+      <article class="spec-page" data-spec-page="design" hidden>
+        <h1>设计基底与用户决策</h1>
+        <section id="design-basis">
+          <h2>设计基底与原型特有调整</h2>
+          <ul>
+            <li><strong>采用设计基底：</strong>延续参考原型 <code>auto-entry-config</code> 的 Ant Design 后台浅色（无独立 theme 包，原型内 CSS tokens）。</li>
+            <li><strong>关键 tokens：</strong>主色 <code>#1677ff</code>、布局背景 <code>#f0f2f5</code>、卡片白底、边框 <code>#f0f0f0</code> / <code>#d9d9d9</code>、圆角 6–8px、控件高 32px。</li>
+            <li><strong>本原型特有调整：</strong>
+              <ul>
+                <li>场景选择：抽屉内卡片列表 + 自定义入口（非二级弹层）。</li>
+                <li>高级参数：横向四步流程图 + 下方配参区块。</li>
+                <li>共享字段：两 Tab 可编且同步，高级侧短文案「与基础参数同步」。</li>
+                <li>通知：每条启用开关 + 文案输入。</li>
+                <li>AER 操作区三按钮，控制操作为占位。</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section id="open-questions">
+          <h2>当前待确认事项</h2>
+          <ul class="placeholder-list"><li>无关键待确认</li></ul>
+        </section>
+
+        <section id="decision-history">
+          <h2>用户重要决策与变更</h2>
+          <table>
+            <thead><tr><th>日期</th><th>用户决策或变更</th><th>对当前原型的影响</th></tr></thead>
+            <tbody>
+              <tr>
+                <td data-label="日期">2026-09-07</td>
+                <td data-label="用户决策或变更">1A 新建独立原型；2A 控制操作占位；3A 右侧抽屉；4A 共享字段双向同步；5A 固定四步不可编排；6A 仅标准场景+自定义；7B 通知=开关+文案</td>
+                <td data-label="对当前原型的影响">确定产品范围与交互模型</td>
+              </tr>
+              <tr>
+                <td data-label="日期">2026-09-07</td>
+                <td data-label="用户决策或变更">设计按推荐：基底 A；D1A 场景卡片；D2A 横向流程；D3A 同步提示；D4A 开关+文案；主规格 HTML</td>
+                <td data-label="对当前原型的影响">确定视觉与表单表达，进入主规格草案</td>
+              </tr>
+              <tr>
+                <td data-label="日期">2026-09-07</td>
+                <td data-label="用户决策或变更">确认主规格可作为实现依据</td>
+                <td data-label="对当前原型的影响">进入实现与验收</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="impl-boundary">
+          <h2>实施边界（确认后执行）</h2>
+          <ul>
+            <li><strong>会做：</strong><code>src/prototypes/auto-entry-config-form/</code> 可运行原型：列表、场景选择、双 Tab 表单抽屉、复制流程；mock 持久化。</li>
+            <li><strong>不做：</strong>改写 <code>auto-entry-config</code>；真实控制操作面板；多场景包；后端联调。</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const navItems = [...document.querySelectorAll('[data-page-target]')];
+    const pages = [...document.querySelectorAll('[data-spec-page]')];
+    const showPage = (pageId) => {
+      for (const navItem of navItems) {
+        if (navItem.dataset.pageTarget === pageId) navItem.setAttribute('aria-current', 'page');
+        else navItem.removeAttribute('aria-current');
+      }
+      for (const page of pages) page.hidden = page.dataset.specPage !== pageId;
+    };
+    for (const navItem of navItems) navItem.addEventListener('click', () => showPage(navItem.dataset.pageTarget));
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e6f4ff',
+        primaryTextColor: '#222832',
+        primaryBorderColor: '#1677ff',
+        lineColor: '#1677ff',
+        secondaryColor: '#f0f7ff',
+        tertiaryColor: '#ffffff',
+        edgeLabelBackground: '#ffffff',
+        fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      },
+    });
+  </script>
+</body>
+</html>
