@@ -1,0 +1,480 @@
+@import "tailwindcss";
+
+.aem-root {
+  --aem-gate-height: 400px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+  color: rgba(0, 0, 0, 0.88);
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+}
+
+.aem-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.aem-system-switch .ant-segmented-item-label {
+  min-height: 34px;
+  line-height: 1.2;
+  padding: 4px 14px;
+}
+
+.aem-system-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.aem-system-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.aem-system-gates {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+  font-variant-numeric: tabular-nums;
+}
+
+.aem-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 16px;
+  min-height: 0;
+}
+
+.aem-gate {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: var(--aem-gate-height);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.aem-gate-title {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 650;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+  height: 41px;
+  box-sizing: border-box;
+  line-height: 21px;
+}
+
+.aem-gate-bd {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(280px, 1.1fr) minmax(260px, 1fr);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.aem-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.aem-col:last-child {
+  border-right: 0;
+}
+
+.aem-col-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: rgba(0, 0, 0, 0.88);
+  flex-shrink: 0;
+}
+
+.aem-col-desc {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.aem-col-subtitle {
+  margin: 8px 0 6px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.aem-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.aem-device-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.aem-device-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1;
+}
+
+.aem-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.aem-dot.on {
+  background: #52c41a;
+  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
+}
+
+.aem-dot.off {
+  background: #bfbfbf;
+}
+
+.aem-monitor-stack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aem-col-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.aem-service-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aem-service-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.aem-log-filter {
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.aem-cam {
+  position: relative;
+  background: #1f2329;
+  border-radius: 6px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 100px;
+}
+
+.aem-cam-scene {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #2a3140 0%, #1c2028 42%, #14171c 100%);
+}
+
+.aem-cam-scene::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 46%;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0 18px,
+      transparent 18px 36px
+    ),
+    linear-gradient(180deg, #3a414d 0%, #2c323c 100%);
+  clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+}
+
+.aem-cam-car {
+  position: absolute;
+  left: 50%;
+  bottom: 14%;
+  width: 46%;
+  height: 34%;
+  transform: translateX(-50%);
+  background: #4b5563;
+  clip-path: polygon(8% 58%, 22% 22%, 78% 22%, 92% 58%, 96% 86%, 4% 86%);
+}
+
+.aem-cam-car::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 8%;
+  height: 36%;
+  background: #94a3b8;
+  opacity: 0.55;
+}
+
+.aem-cam-plate {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  z-index: 2;
+  min-width: 108px;
+  padding: 3px 8px 3px 6px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+.aem-cam-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(82, 196, 26, 0.7);
+  animation: aem-scan 3.6s linear infinite;
+  z-index: 3;
+}
+
+.aem-cam-hud {
+  position: absolute;
+  inset: 8px 10px;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.aem-cam-rec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aem-cam-rec i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff4d4f;
+  display: inline-block;
+  animation: aem-blink 1.2s ease-in-out infinite;
+}
+
+.aem-cam-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(15, 17, 21, 0.72);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 12px;
+}
+
+.aem-cam-mask strong {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.aem-cam-mask span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.aem-led {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  background: #111827;
+  border-radius: 4px;
+  padding: 6px 10px;
+  min-height: 32px;
+  flex-shrink: 0;
+}
+
+.aem-led-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.04em;
+}
+
+.aem-led-text {
+  flex: 1;
+  color: #fbbf24;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aem-led.off .aem-led-text {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.aem-logs {
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.aem-records-wrap {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  background: #fff;
+  padding: 4px;
+}
+
+.aem-log {
+  display: grid;
+  grid-template-columns: 68px 76px 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 7px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.65);
+  background: #fff;
+}
+
+.aem-log:last-child {
+  border-bottom: 0;
+}
+
+.aem-log .time {
+  font-variant-numeric: tabular-nums;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.aem-log .msg {
+  min-width: 0;
+}
+
+.aem-log.exception {
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+.aem-log.exception .time {
+  color: #cf1322;
+}
+
+.aem-log-empty {
+  display: block;
+  color: rgba(0, 0, 0, 0.45);
+  grid-template-columns: 1fr;
+}
+
+@keyframes aem-scan {
+  0% { top: 8%; }
+  100% { top: 88%; }
+}
+
+@keyframes aem-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@media (max-width: 1200px) {
+  .aem-gate {
+    height: auto;
+    min-height: var(--aem-gate-height);
+  }
+
+  .aem-gate-bd {
+    grid-template-columns: 1fr;
+  }
+
+  .aem-col {
+    border-right: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .aem-col:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .aem-toolbar {
+    justify-content: stretch;
+  }
+
+  .aem-system-switch {
+    width: 100%;
+  }
+
+  .aem-log {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .aem-log .ant-tag {
+    grid-column: 2;
+  }
+
+  .aem-log .msg {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aem-cam-scan,
+  .aem-cam-rec i {
+    animation: none;
+  }
+}

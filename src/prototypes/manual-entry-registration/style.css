@@ -1,0 +1,759 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  height: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.mer-root {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 1280px;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px 12px;
+  background: #f5f5f5;
+  color: rgba(0, 0, 0, 0.88);
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+}
+
+.mer-context-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+}
+
+.mer-context-site {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-right: 16px;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mer-site-dropdown {
+  width: 148px !important;
+}
+
+.mer-module-nav {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.mer-module-nav-item {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.mer-module-nav-item:hover {
+  background: rgba(22, 119, 255, 0.06);
+  color: #1677ff;
+}
+
+.mer-module-nav-item.is-active {
+  background: rgba(22, 119, 255, 0.1);
+  border-color: rgba(22, 119, 255, 0.25);
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.mer-module-nav-icon {
+  display: inline-flex;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.mer-module-nav-item.is-active .mer-module-nav-icon {
+  opacity: 1;
+}
+
+.mer-auto-tag {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.mer-auto-confirm-desc {
+  max-width: 320px;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.mer-auto-confirm-mode {
+  margin-top: 8px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+}
+
+.mer-yunyi-auto {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mer-yunyi-auto-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.mer-yunyi-waybill-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mer-yunyi-waybill-tip {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-yunyi-fail {
+  color: #ff4d4f;
+}
+
+.mer-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+}
+
+.mer-card-title h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.mer-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.mer-action-group-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.mer-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-left: 10px;
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mer-module-placeholder {
+  padding: 48px 24px;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mer-card-read-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mer-card-read-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 0 20px;
+  text-align: center;
+}
+
+.mer-card-read-idle-icon {
+  font-size: 40px;
+  color: rgba(22, 119, 255, 0.35);
+}
+
+.mer-card-read-status {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.mer-card-read-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(22, 119, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mer-card-read-success-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #52c41a;
+}
+
+.mer-card-read-ok-icon {
+  font-size: 18px;
+}
+
+.mer-card-read-desc {
+  margin-bottom: 4px;
+}
+
+.mer-card-read-btn {
+  margin-top: 16px;
+}
+
+.mer-field-input,
+.mer-field-select {
+  width: 100%;
+}
+
+.mer-field-input .ant-input-number,
+.mer-field-select .ant-select-selector {
+  width: 100% !important;
+  border: none !important;
+  border-bottom: 1px solid #d9d9d9 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.mer-card-read-hint {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-card-read-anim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+  text-align: center;
+}
+
+.mer-card-read-fail p {
+  color: #faad14;
+}
+
+.mer-global-spin {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.45);
+  z-index: 1000;
+}
+
+.mer-site-select {
+  width: 100%;
+  max-width: 1120px;
+  padding: 12px 8px 24px;
+}
+
+.mer-site-select-head {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.mer-site-select-head h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 650;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.mer-site-select-head p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-site-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.mer-site-card {
+  appearance: none;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  background: #fff;
+  min-height: 188px;
+  padding: 22px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mer-site-card:hover {
+  border-color: #1677ff;
+  box-shadow: 0 8px 24px rgba(22, 119, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.mer-site-card:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+
+.mer-site-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(22, 119, 255, 0.08);
+  color: #1677ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.mer-site-card-abbr {
+  margin-top: 4px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.mer-site-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.mer-site-card-hint {
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-site-card-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1677ff;
+}
+
+.mer-current-site {
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.mer-switch-site {
+  padding-inline: 0 !important;
+  height: auto !important;
+}
+
+.mer-site-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.mer-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.mer-form-card {
+  flex: 0 0 auto;
+}
+
+.mer-list-card {
+  flex: 1 1 auto;
+}
+
+.mer-card-hd {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mer-card-hd h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.mer-list-count {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-card-bd {
+  padding: 6px 12px 2px;
+}
+
+.mer-form-identity-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px 48px;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mer-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 24px;
+}
+
+.mer-col-title {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-ufield {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin-bottom: 2px;
+}
+
+.mer-ufield-label {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.65);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mer-ufield-req .mer-ufield-label::before {
+  content: "*";
+  display: inline-block;
+  margin-inline-end: 4px;
+  color: #ff4d4f;
+  font-family: SimSun, sans-serif;
+}
+
+.mer-ufield-value {
+  min-width: 0;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 2px;
+  border-bottom: 1px solid #d9d9d9;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.88);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mer-ufield-value.is-empty {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.mer-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 8px;
+}
+
+.mer-list-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 8px 8px;
+  overflow: hidden;
+}
+
+.mer-list-body .ant-table-wrapper,
+.mer-list-body .ant-spin-nested-loading,
+.mer-list-body .ant-spin-container,
+.mer-list-body .ant-table,
+.mer-list-body .ant-table-container {
+  height: 100%;
+}
+
+.mer-list-body .ant-table-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.mer-list-body .ant-table-body {
+  flex: 1 1 auto;
+}
+
+.mer-scan-hint {
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.6;
+}
+
+.mer-permit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mer-plate-input {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin-bottom: 2px;
+}
+
+.mer-plate-ac {
+  width: 100%;
+}
+
+.mer-plate-ac .ant-select-selector {
+  border: none !important;
+  border-bottom: 1px solid #d9d9d9 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-inline: 2px !important;
+  height: 28px !important;
+}
+
+.mer-plate-ac .ant-select-selection-search-input {
+  height: 26px !important;
+}
+
+.mer-ufield-permit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.mer-ufield-permit .is-empty {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.mer-permit-help {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+  cursor: help;
+}
+
+.mer-allow-reason {
+  margin-top: 16px;
+}
+
+.mer-allow-reason-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.mer-allow-presets {
+  margin-top: 10px;
+}
+
+.mer-allow-presets-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-hidden-scan-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mer-yunyi-scan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 4px;
+  text-align: center;
+}
+
+.mer-yunyi-scan-frame {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(22, 119, 255, 0.25);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(22, 119, 255, 0.04), rgba(22, 119, 255, 0.01));
+  overflow: hidden;
+}
+
+.mer-yunyi-scan-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #1677ff;
+}
+
+.mer-yunyi-scan-corner.tl {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.mer-yunyi-scan-corner.tr {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.mer-yunyi-scan-corner.bl {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+}
+
+.mer-yunyi-scan-corner.br {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+.mer-yunyi-scan-line {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #1677ff, transparent);
+  animation: mer-scan-move 2s ease-in-out infinite;
+}
+
+.mer-yunyi-scan-icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  font-size: 42px;
+  color: rgba(22, 119, 255, 0.35);
+}
+
+.mer-yunyi-scan-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.mer-yunyi-scan-desc {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.mer-yunyi-scan-demo {
+  margin-top: 4px;
+}
+
+.mer-yunyi-scan-ok-icon {
+  font-size: 48px;
+  color: #52c41a;
+}
+
+@keyframes mer-scan-move {
+  0% {
+    top: 16px;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 16px);
+    opacity: 0.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mer-root * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
