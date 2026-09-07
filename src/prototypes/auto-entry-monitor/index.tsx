@@ -7,10 +7,9 @@
  * - /skills/axure-export-workflow/SKILL.md
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ConfigProvider, Segmented, message } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
 import './style.css';
 import GatePointCard from './components/GatePointCard';
+import { MessageHost, Segmented, message } from './components/ui';
 import {
   LIVE_PLATES,
   SAMPLE_POS,
@@ -155,41 +154,40 @@ const Component: React.FC = () => {
   }, [systemId]);
 
   return (
-    <ConfigProvider locale={zhCN}>
-      <div className="aem-root">
-        <div className="aem-toolbar">
-          <Segmented
-            className="aem-system-switch"
-            value={systemId}
-            options={SYSTEMS.map((item) => ({
-              label: (
-                <span className="aem-system-opt">
-                  <span className="aem-system-name">{item.name}</span>
-                  <span className="aem-system-gates">
-                    {item.id === 'system-a' ? '入厂点 1# · 2#' : '入厂点 3# · 4#'}
-                  </span>
+    <div className="aem-root">
+      <MessageHost />
+      <div className="aem-toolbar">
+        <Segmented
+          className="aem-system-switch"
+          value={systemId}
+          options={SYSTEMS.map((item) => ({
+            label: (
+              <span className="aem-system-opt">
+                <span className="aem-system-name">{item.name}</span>
+                <span className="aem-system-gates">
+                  {item.id === 'system-a' ? '入厂点 1# · 2#' : '入厂点 3# · 4#'}
                 </span>
-              ),
-              value: item.id,
-            }))}
-            onChange={(value) => setSystemId(String(value))}
-          />
-        </div>
-
-        <div className="aem-body">
-          {visibleGates.map((gate) => (
-            <GatePointCard
-              key={gate.id}
-              gate={gate}
-              clock={formatClock(now)}
-              logs={logs.filter((item) => item.gateId === gate.id)}
-              records={records.filter((item) => item.gateId === gate.id)}
-              onToggleService={(next) => applyToggle(gate, next)}
-            />
-          ))}
-        </div>
+              </span>
+            ),
+            value: item.id,
+          }))}
+          onChange={setSystemId}
+        />
       </div>
-    </ConfigProvider>
+
+      <div className="aem-body">
+        {visibleGates.map((gate) => (
+          <GatePointCard
+            key={gate.id}
+            gate={gate}
+            clock={formatClock(now)}
+            logs={logs.filter((item) => item.gateId === gate.id)}
+            records={records.filter((item) => item.gateId === gate.id)}
+            onToggleService={(next) => applyToggle(gate, next)}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
 

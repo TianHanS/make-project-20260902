@@ -2,9 +2,8 @@
  * 单个入厂点：左设备监测 · 中运行日志 · 右入厂登记记录
  */
 import React, { useMemo, useState } from 'react';
-import { Popconfirm, Segmented, Switch, Table, Tag } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
 import VideoMonitor from './VideoMonitor';
+import { Popconfirm, Segmented, Switch, Tag } from './ui';
 import {
   LOG_KIND_LABEL,
   gateDeviceStatus,
@@ -51,13 +50,6 @@ export default function GatePointCard({
     [records],
   );
 
-  const recordColumns: ColumnsType<EntryRecord> = [
-    { title: '车牌号', dataIndex: 'plate', width: 96 },
-    { title: '入厂时间', dataIndex: 'enterAt', width: 148 },
-    { title: '采样位', dataIndex: 'samplePos', ellipsis: true },
-    { title: '过衡位', dataIndex: 'weighPos', ellipsis: true },
-  ];
-
   const pendingAction = pendingEnabled ? '启用' : '停用';
   const confirmTitle = `${pendingAction}自动入厂登记服务`;
   const confirmDesc = pendingEnabled
@@ -87,7 +79,6 @@ export default function GatePointCard({
       <div className="aem-gate-title">{gate.name}</div>
 
       <div className="aem-gate-bd">
-        {/* 1. 设备监测 */}
         <div className="aem-col aem-col-device">
           <h3 className="aem-col-title">设备监测</h3>
           <div className="aem-device-status">
@@ -110,7 +101,6 @@ export default function GatePointCard({
           </div>
         </div>
 
-        {/* 2. 运行日志 */}
         <div className="aem-col aem-col-logs">
           <div className="aem-col-head">
             <h3 className="aem-col-title">运行日志</h3>
@@ -122,19 +112,18 @@ export default function GatePointCard({
                 description={confirmDesc}
                 okText={`确认${pendingAction}`}
                 cancelText="取消"
-                okButtonProps={pendingEnabled ? undefined : { danger: true }}
+                danger={!pendingEnabled}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
-                onOpenChange={(open) => {
-                  if (!open) handleCancel();
-                }}
               >
-                <Switch
-                  checked={gate.serviceEnabled}
-                  checkedChildren="启用"
-                  unCheckedChildren="停用"
-                  onChange={handleSwitchChange}
-                />
+                <span>
+                  <Switch
+                    checked={gate.serviceEnabled}
+                    checkedChildren="启用"
+                    unCheckedChildren="停用"
+                    onChange={handleSwitchChange}
+                  />
+                </span>
               </Popconfirm>
             </div>
           </div>
@@ -142,7 +131,7 @@ export default function GatePointCard({
             <Segmented
               size="small"
               value={logFilter}
-              onChange={(value) => setLogFilter(value as 'all' | LogLevel)}
+              onChange={setLogFilter}
               options={[
                 { label: '全部', value: 'all' },
                 { label: '正常', value: 'normal' },
@@ -158,8 +147,9 @@ export default function GatePointCard({
                 <div key={item.id} className={`aem-log ${item.level}`}>
                   <span className="time">{item.time.slice(11)}</span>
                   <Tag
-                    color={item.level === 'exception' ? 'error' : item.kind === 'inspect' ? 'warning' : 'default'}
-                    style={{ marginInlineEnd: 0 }}
+                    color={
+                      item.level === 'exception' ? 'error' : item.kind === 'inspect' ? 'warning' : 'default'
+                    }
                   >
                     {LOG_KIND_LABEL[item.kind]}
                   </Tag>
@@ -170,20 +160,44 @@ export default function GatePointCard({
           </div>
         </div>
 
-        {/* 3. 入厂登记记录 */}
         <div className="aem-col aem-col-records">
           <h3 className="aem-col-title">入厂登记记录</h3>
           <p className="aem-col-desc">本入厂点按入厂时间逆序</p>
           <div className="aem-records-wrap">
-            <Table
-              size="small"
-              rowKey="id"
-              pagination={false}
-              columns={recordColumns}
-              dataSource={sortedRecords}
-              scroll={{ y: 248 }}
-              locale={{ emptyText: '暂无入厂登记记录' }}
-            />
+            <div className="aem-table-scroll">
+              <table className="aem-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 96 }}>车牌号</th>
+                    <th style={{ width: 148 }}>入厂时间</th>
+                    <th>采样位</th>
+                    <th>过衡位</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedRecords.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="aem-table-empty">
+                        暂无入厂登记记录
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedRecords.map((row) => (
+                      <tr key={row.id}>
+                        <td>{row.plate}</td>
+                        <td>{row.enterAt}</td>
+                        <td className="aem-ellipsis" title={row.samplePos}>
+                          {row.samplePos}
+                        </td>
+                        <td className="aem-ellipsis" title={row.weighPos}>
+                          {row.weighPos}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
