@@ -92,8 +92,12 @@ function getSearchParamFromRequestUrl(requestUrl: string, key: string): string {
 export function shouldInjectManagementRuntime(requestUrl: string | undefined): boolean {
   try {
     const searchParams = new URL(requestUrl || '/', 'http://localhost').searchParams;
-    return searchParams.get('agentToolbar') === 'host'
-      && !searchParams.get('gitVersion')?.trim();
+    if (searchParams.get('gitVersion')?.trim()) {
+      return false;
+    }
+    const isPublishedAnnotationSession = searchParams.get('annotationSession') === '1'
+      && Boolean(searchParams.get('publishedShareId')?.trim());
+    return searchParams.get('agentToolbar') === 'host' || isPublishedAnnotationSession;
   } catch {
     return false;
   }
@@ -109,7 +113,7 @@ function getSearchParamFromRequestReferer(
 
 function appendPreviewLoaderSearchParams(loaderPath: string, requestUrl: string): string {
   const searchParams = new URLSearchParams();
-  for (const key of ['projectId', 'gitVersion', 'gitPath']) {
+  for (const key of ['projectId', 'publishedShareId', 'gitVersion', 'gitPath']) {
     const value = getSearchParamFromRequestUrl(requestUrl, key);
     if (value) {
       searchParams.set(key, value);
@@ -120,7 +124,7 @@ function appendPreviewLoaderSearchParams(loaderPath: string, requestUrl: string)
 }
 
 function getPreviewContextSearchParams(requestUrl: string): ModuleSpecifierSearchParam[] {
-  return ['projectId', 'gitVersion', 'gitPath']
+  return ['projectId', 'publishedShareId', 'gitVersion', 'gitPath']
     .map((key) => ({
       key,
       value: getSearchParamFromRequestUrl(requestUrl, key),

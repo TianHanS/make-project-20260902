@@ -109,6 +109,8 @@ export default function MineUnloadPage() {
     const [points] = useState<UnloadPoint[]>(() => buildInitialUnloadPoints());
 
     const [date, setDate] = useState<string>(TODAY);
+    const [keywordInput, setKeywordInput] = useState('');
+    const [pointFilterInput, setPointFilterInput] = useState('');
     const [keyword, setKeyword] = useState('');
     const [pointFilter, setPointFilter] = useState('');
     const [sort, setSort] = useState<{ key: SortKey | null; order: 'asc' | 'desc' }>({ key: null, order: 'asc' });
@@ -125,7 +127,11 @@ export default function MineUnloadPage() {
 
     // 人工新增
     const [newOpen, setNewOpen] = useState(false);
-    const [newForm, setNewForm] = useState<{ mineId: string; ledName: string }>({ mineId: '', ledName: '' });
+    const [newForm, setNewForm] = useState<{ mineId: string; ledName: string; date: string }>({
+        mineId: '',
+        ledName: '',
+        date: TODAY,
+    });
     const [newPointName, setNewPointName] = useState('');
     const [mineDrawerOpen, setMineDrawerOpen] = useState(false);
     const [mineSearch, setMineSearch] = useState('');
@@ -222,7 +228,12 @@ export default function MineUnloadPage() {
         [allDetails, date],
     );
 
-    /* ---------- 排序 / 日期 ---------- */
+    /* ---------- 排序 / 日期 / 查询 ---------- */
+    const applySearch = () => {
+        setKeyword(keywordInput.trim());
+        setPointFilter(pointFilterInput);
+    };
+
     const toggleSort = (key: SortKey) => {
         setSort((s) => {
             if (s.key !== key) return { key, order: 'asc' };
@@ -286,7 +297,9 @@ export default function MineUnloadPage() {
 
     /* ---------- 人工新增 ---------- */
     const openNew = () => {
-        setNewForm({ mineId: '', ledName: '' });
+        // 默认带入列表筛选来煤日期；若筛选日早于今日则回落到今日
+        const defaultDate = date >= TODAY ? date : TODAY;
+        setNewForm({ mineId: '', ledName: '', date: defaultDate });
         setNewPointName('');
         setNewOpen(true);
     };
@@ -295,7 +308,11 @@ export default function MineUnloadPage() {
         const m = mineById(minePickValue);
         if (m) {
             // 矿点/简称均为配置信息；无简称时 LED 名自动填充矿点名
-            setNewForm({ mineId: m.id, ledName: m.shortName || m.fullName });
+            setNewForm((f) => ({
+                ...f,
+                mineId: m.id,
+                ledName: m.shortName || m.fullName,
+            }));
             setNewPointName('');
         }
         setMineDrawerOpen(false);
@@ -329,6 +346,14 @@ export default function MineUnloadPage() {
 
     const saveNew = () => {
         const ledName = newForm.ledName.trim();
+        if (!newForm.date) {
+            message.warning('请选择来煤日期');
+            return;
+        }
+        if (newForm.date < TODAY) {
+            message.warning('来煤日期仅可选择今日及以后');
+            return;
+        }
         if (!ledName) {
             message.warning('请输入显示的LED矿点名');
             return;
@@ -360,7 +385,7 @@ export default function MineUnloadPage() {
             operatedAt: now,
             createdBy: '王工',
             createdAt: now,
-            date,
+            date: newForm.date,
         };
         setAllDetails((list) => [...list, row]);
         message.success('矿点卸煤要求已新增，并自动推送卸煤要求到 LED');
@@ -385,6 +410,7 @@ export default function MineUnloadPage() {
                           unloadPoint: p?.name || '',
                           coalYard: p?.coalYard || '',
                           zone: p?.zone || '',
+                          date: newForm.date || r.date,
                           operator: '王工',
                           operatedAt: now,
                       }
@@ -608,13 +634,25 @@ export default function MineUnloadPage() {
                         <span className="cd-filter-label">矿点名称/简称</span>
                         <div className="cd-search">
                             <Search size={15} className="cd-search-icon" />
-                            <Input value={keyword} onChange={setKeyword} placeholder="输入矿点名称或简称" />
+                            <Input
+                                value={keywordInput}
+                                onChange={setKeywordInput}
+                                placeholder="输入矿点名称或简称"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') applySearch();
+                                }}
+                            />
                         </div>
                     </div>
                     <div className="cd-filter-item">
                         <span className="cd-filter-label">卸煤点</span>
                         <div style={{ width: 160 }}>
-                            <Select value={pointFilter} options={pointFilterOptions} onChange={setPointFilter} placeholder="请选择" />
+                            <Select
+                                value={pointFilterInput}
+                                options={pointFilterOptions}
+                                onChange={setPointFilterInput}
+                                placeholder="请选择"
+                            />
                         </div>
                     </div>
                     <div className="cd-filter-item">
@@ -630,6 +668,11 @@ export default function MineUnloadPage() {
                                 <ChevronRight size={14} />
                             </button>
                         </div>
+                    </div>
+                    <div className="cd-filter-item">
+                        <Button variant="primary" icon={<Search size={15} />} onClick={applySearch}>
+                            查询
+                        </Button>
                     </div>
                     <span className="cd-filter-spacer" />
                     <div className="cd-pop" ref={colPopRef}>
@@ -766,6 +809,12 @@ export default function MineUnloadPage() {
                     </>
                 }
             >
+                <Field
+                    label="来煤日期"
+                    extra="提示：当前处理分配的是该日期下的矿点卸煤点匹配结果（与列表筛选日期一致）"
+                >
+                    <div className="cd-readonly cd-match-date-value">{date}</div>
+                </Field>
                 <div className="cd-confirm-text" style={{ marginBottom: 12 }}>
                     已按历史最近要求预填卸煤点，可直接修改每行「卸煤点」与「LED显示矿点名」，确认后批量保存并推送 LED。
                 </div>
@@ -835,6 +884,18 @@ export default function MineUnloadPage() {
                     </>
                 }
             >
+                <Field
+                    label="来煤日期"
+                    required
+                    extra="默认带入列表筛选日期；仅可选今日及以后"
+                >
+                    <DatePicker
+                        value={newForm.date}
+                        minDate={TODAY}
+                        onChange={(v) => setNewForm((f) => ({ ...f, date: v }))}
+                        placeholder="请选择来煤日期"
+                    />
+                </Field>
                 <Field label="矿点选择（选填）" extra="矿点与矿点简称为配置信息；无简称时 LED 名自动填充矿点名">
                     <div className="cd-readonly" style={{ justifyContent: 'space-between' }}>
                         <span className={newMine ? '' : 'is-empty'}>{
@@ -850,7 +911,7 @@ export default function MineUnloadPage() {
                         {newMine && newMine.shortName ? newMine.shortName : '（未选矿点或无简称）'}
                     </div>
                 </Field>
-                <Field label="显示的LED矿点名" required extra="选矿点后默认回填简称，无简称回填矿点名，可手工修改">
+                <Field label="显示的LED矿点名" required>
                     <Input value={newForm.ledName} onChange={(v) => setNewForm((f) => ({ ...f, ledName: v }))} placeholder="请输入LED显示矿点名" />
                 </Field>
                 <Field label="卸煤点" required>
@@ -1072,7 +1133,6 @@ export default function MineUnloadPage() {
                                     <th>进煤系统</th>
                                     <th>在厂状态</th>
                                     <th>入厂时间</th>
-                                    <th>司机</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1085,7 +1145,6 @@ export default function MineUnloadPage() {
                                         <td><Tag color="processing">{v.intakeSystem}进煤系统</Tag></td>
                                         <td><Tag color="warning">{v.inPlantStatus}</Tag></td>
                                         <td className="cd-cell-muted">{v.enteredAt}</td>
-                                        <td>{v.driverName}</td>
                                     </tr>
                                 ))}
                             </tbody>

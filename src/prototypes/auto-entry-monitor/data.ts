@@ -1,5 +1,5 @@
 /**
- * 自动入厂监测 · 系统、入厂点、排队与日志 Mock
+ * 自动入厂监测 · 系统、入厂点、采样排队与日志 Mock
  *
  * 现场：A 系统（入厂点 1#、2#）、B 系统（入厂点 3#、4#）
  *
@@ -17,9 +17,16 @@ export type LogKind =
   | 'inspect'
   | 'cut-in'
   | 'service'
+  | 'control'
   | 'offline';
 
-export type QueueStatus = 'waiting' | 'approaching' | 'overtime';
+/** 模块配置下发的现场控制操作（监测页展示区按此渲染按钮） */
+export interface ControlAction {
+  id: string;
+  label: string;
+  /** raise=抬杆，lower=落杆；用于按钮样式与确认文案 */
+  kind: 'raise' | 'lower' | 'custom';
+}
 
 export interface SystemInfo {
   id: string;
@@ -35,8 +42,14 @@ export interface GatePoint {
   recognizer: DeviceStatus;
   led: DeviceStatus;
   serviceEnabled: boolean;
+  /** 最近一次启用自动入厂的时间；停用时为 null。启用后仅展示该时刻之后的日志/记录 */
+  serviceEnabledAt: string | null;
   ledText: string;
   currentPlate: string;
+  /** 随模块配置的控制操作，一般 2 个（道闸抬杆 / 道闸落杆） */
+  controlActions: ControlAction[];
+  /** 模块配置：允许控制本入厂点的设备 IP 白名单 */
+  allowedControlIps: string[];
 }
 
 export interface RunLog {
@@ -58,15 +71,15 @@ export interface EntryRecord {
   weighPos: string;
 }
 
-export interface QueueVehicle {
+/** 入厂点已启用队列 · 按采样机统计 */
+export interface SamplerQueueStat {
   id: string;
-  systemId: string;
-  seq: number;
-  plate: string;
-  cargo: string;
-  supplier: string;
-  waitMin: number;
-  status: QueueStatus;
+  gateId: string;
+  samplerName: string;
+  /** 该采样机合计队列最大数 */
+  maxQueue: number;
+  /** 当前待采样车数（状态=已入厂登记） */
+  waitingCount: number;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -92,14 +105,23 @@ export const LOG_KIND_LABEL: Record<LogKind, string> = {
   inspect: '车辆抽检',
   'cut-in': '车辆插队',
   service: '服务启停',
+  control: '控制操作',
   offline: '设备离线',
 };
 
-export const QUEUE_STATUS_LABEL: Record<QueueStatus, string> = {
-  waiting: '排队中',
-  approaching: '即将入厂',
-  overtime: '等待超时',
-};
+/** 标准入厂模块默认控制操作：道闸抬杆、道闸落杆 */
+export const DEFAULT_CONTROL_ACTIONS: ControlAction[] = [
+  { id: 'barrier-raise', label: '道闸抬杆', kind: 'raise' },
+  { id: 'barrier-lower', label: '道闸落杆', kind: 'lower' },
+];
+
+/**
+ * 原型模拟：当前浏览器所在设备 IP。
+ * 入厂点 1# / 3# 白名单含本 IP → 有控制权限；2# / 4# 不含 → 无权限（对照演示）。
+ */
+export const CURRENT_DEVICE_IP = '192.168.10.21';
+
+export const NO_CONTROL_TIP = '本设备无控制权限，禁止操作！';
 
 export const SAMPLE_POS = ['1#机械采样', '2#机械采样', '3#人工采样', '4#机械采样'];
 export const WEIGH_POS = ['1#汽车衡', '2#汽车衡', '3#汽车衡', '4#汽车衡'];
@@ -110,7 +132,16 @@ export const SYSTEMS: SystemInfo[] = [
   { id: 'system-b', name: 'B 系统', gateIds: ['gate-3', 'gate-4'] },
 ];
 
-export function createInitialGates(): GatePoint[] {
+export function hasControlPermission(gate: GatePoint, deviceIp = CURRENT_DEVICE_IP): boolean {
+  return gate.allowedControlIps.includes(deviceIp);
+}
+
+export function isSamplerFull(stat: SamplerQueueStat): boolean {
+  return stat.waitingCount >= stat.maxQueue;
+}
+
+export function createInitialGates(now = new Date()): GatePoint[] {
+  const enabledAt = formatDateTime(new Date(now.getTime() - 2 * 60 * 60_000));
   return [
     {
       id: 'gate-1',
@@ -120,8 +151,11 @@ export function createInitialGates(): GatePoint[] {
       recognizer: 'online',
       led: 'online',
       serviceEnabled: true,
+      serviceEnabledAt: enabledAt,
       ledText: '欢迎入厂  鲁B·8G267  请驶入 1#车道',
       currentPlate: '鲁B8G267',
+      controlActions: [...DEFAULT_CONTROL_ACTIONS],
+      allowedControlIps: [CURRENT_DEVICE_IP, '192.168.10.31'],
     },
     {
       id: 'gate-2',
@@ -131,8 +165,12 @@ export function createInitialGates(): GatePoint[] {
       recognizer: 'online',
       led: 'online',
       serviceEnabled: true,
+      serviceEnabledAt: enabledAt,
       ledText: '请排队等候  下一位 豫C·19086',
       currentPlate: '豫C19086',
+      controlActions: [...DEFAULT_CONTROL_ACTIONS],
+      /** 不含当前设备 IP → 演示无控制权限 */
+      allowedControlIps: ['192.168.10.41', '192.168.10.42'],
     },
     {
       id: 'gate-3',
@@ -142,8 +180,11 @@ export function createInitialGates(): GatePoint[] {
       recognizer: 'online',
       led: 'online',
       serviceEnabled: true,
+      serviceEnabledAt: enabledAt,
       ledText: '欢迎入厂  晋M·66521  请驶入采样',
       currentPlate: '晋M66521',
+      controlActions: [...DEFAULT_CONTROL_ACTIONS],
+      allowedControlIps: [CURRENT_DEVICE_IP, '192.168.20.31'],
     },
     {
       id: 'gate-4',
@@ -153,12 +194,16 @@ export function createInitialGates(): GatePoint[] {
       recognizer: 'offline',
       led: 'offline',
       serviceEnabled: true,
+      serviceEnabledAt: enabledAt,
       ledText: '设备离线  暂停自动入厂',
       currentPlate: '',
+      controlActions: [...DEFAULT_CONTROL_ACTIONS],
+      allowedControlIps: ['192.168.20.41'],
     },
   ];
 }
 
+/** 初始日志：仅用于「已启用」入厂点展示；停用后由页面清空 */
 export function createInitialLogs(now: Date): RunLog[] {
   return [
     { id: 'ls1', gateId: 'gate-1', time: minutesAgo(now, 0, 18), level: 'normal', kind: 'register-ok', plate: '鲁B8G267', message: '登记成功 鲁B8G267，采样位 1#机械采样，过衡位 1#汽车衡' },
@@ -210,19 +255,27 @@ export function createInitialRecords(now: Date): EntryRecord[] {
   ];
 }
 
-export const QUEUE_VEHICLES: QueueVehicle[] = [
-  { id: 'qs1', systemId: 'system-a', seq: 1, plate: '豫C19086', cargo: '烟煤', supplier: '兖矿物流', waitMin: 4, status: 'approaching' },
-  { id: 'qs2', systemId: 'system-a', seq: 2, plate: '鲁L55201', cargo: '混煤', supplier: '枣庄矿业', waitMin: 11, status: 'waiting' },
-  { id: 'qs3', systemId: 'system-a', seq: 3, plate: '晋E90822', cargo: '贫瘦煤', supplier: '同煤集团', waitMin: 18, status: 'waiting' },
-  { id: 'qs4', systemId: 'system-a', seq: 4, plate: '冀D44119', cargo: '褐煤', supplier: '开滦股份', waitMin: 26, status: 'waiting' },
-  { id: 'qs5', systemId: 'system-a', seq: 5, plate: '豫H22076', cargo: '烟煤', supplier: '永煤物流', waitMin: 34, status: 'overtime' },
-  { id: 'qs6', systemId: 'system-a', seq: 6, plate: '皖S11804', cargo: '洗中煤', supplier: '淮北矿业', waitMin: 41, status: 'overtime' },
+/** 各入厂点已启用采样队列初始值（含一档已满对照） */
+export function createInitialSamplerQueues(): SamplerQueueStat[] {
+  return [
+    { id: 'sq-1a', gateId: 'gate-1', samplerName: '1#机械采样', maxQueue: 5, waitingCount: 3 },
+    { id: 'sq-1b', gateId: 'gate-1', samplerName: '2#机械采样', maxQueue: 5, waitingCount: 5 },
+    { id: 'sq-2a', gateId: 'gate-2', samplerName: '2#机械采样', maxQueue: 4, waitingCount: 2 },
+    { id: 'sq-2b', gateId: 'gate-2', samplerName: '3#人工采样', maxQueue: 3, waitingCount: 1 },
+    { id: 'sq-3a', gateId: 'gate-3', samplerName: '1#机械采样', maxQueue: 6, waitingCount: 4 },
+    { id: 'sq-3b', gateId: 'gate-3', samplerName: '2#机械采样', maxQueue: 4, waitingCount: 4 },
+    { id: 'sq-4a', gateId: 'gate-4', samplerName: '4#机械采样', maxQueue: 5, waitingCount: 0 },
+  ];
+}
 
-  { id: 'qn1', systemId: 'system-b', seq: 1, plate: '蒙C77210', cargo: '褐煤', supplier: '伊泰煤炭', waitMin: 7, status: 'approaching' },
-  { id: 'qn2', systemId: 'system-b', seq: 2, plate: '晋K33045', cargo: '贫煤', supplier: '阳煤集团', waitMin: 16, status: 'waiting' },
-  { id: 'qn3', systemId: 'system-b', seq: 3, plate: '陕F10928', cargo: '烟煤', supplier: '陕煤运销', waitMin: 22, status: 'waiting' },
-  { id: 'qn4', systemId: 'system-b', seq: 4, plate: '宁A44103', cargo: '混煤', supplier: '神华宁煤', waitMin: 31, status: 'overtime' },
-];
+/** 模拟后端刷新采样排队：在最大数约束内微调待采样车数 */
+export function refreshSamplerQueues(list: SamplerQueueStat[]): SamplerQueueStat[] {
+  return list.map((item) => {
+    const delta = Math.floor(Math.random() * 3) - 1; // -1 / 0 / +1
+    const next = Math.max(0, Math.min(item.maxQueue, item.waitingCount + delta));
+    return { ...item, waitingCount: next };
+  });
+}
 
 export const LIVE_PLATES = [
   '鲁K22817', '豫B44109', '晋A90833', '冀C77201', '蒙D33018',

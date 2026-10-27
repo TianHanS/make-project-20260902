@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "kind": "document-edit-comments",
+  "resource": {
+    "id": "c5850d8da59dd259e4bd686af76d9b72921e6a5afdc12d9f4ef0528392e23c35",
+    "targetPath": "src/prototypes/fuel-control-platform/.spec/spec.md",
+    "filePath": ".axhub/make/comments/c5850d8da59dd259e4bd686af76d9b72921e6a5afdc12d9f4ef0528392e23c35.json"
+  },
+  "comments": [],
+  "images": [],
+  "documentPath": "src/prototypes/fuel-control-platform/.spec/spec.md"
+}

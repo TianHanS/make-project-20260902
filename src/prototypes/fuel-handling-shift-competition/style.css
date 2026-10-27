@@ -1,0 +1,347 @@
+@import "tailwindcss";
+
+/* 燃运班值小指标竞赛统计自定义样式 */
+
+.competition-theme-root {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  color: rgba(0, 0, 0, 0.88);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 卡片样式 */
+.competition-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.03), 0 3px 6px 0 rgba(0, 0, 0, 0.02), 0 5px 12px 4px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease;
+}
+
+.competition-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 领奖台样式 */
+.podium-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 280px;
+  padding-bottom: 10px;
+}
+
+.podium-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.podium-step:hover {
+  transform: translateY(-5px);
+}
+
+.podium-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.podium-crown {
+  position: absolute;
+  top: -22px;
+  font-size: 24px;
+  animation: crown-bounce 2s infinite ease-in-out;
+}
+
+@keyframes crown-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
+}
+
+.podium-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: 3px solid #ffffff;
+  z-index: 2;
+}
+
+.podium-badge.gold {
+  background: linear-gradient(135deg, #ffe066 0%, #f5b041 100%);
+  color: #784212;
+  box-shadow: 0 4px 12px rgba(245, 176, 65, 0.4);
+}
+
+.podium-badge.silver {
+  background: linear-gradient(135deg, #f2f3f4 0%, #bdc3c7 100%);
+  color: #2c3e50;
+  box-shadow: 0 4px 12px rgba(189, 195, 199, 0.4);
+}
+
+.podium-badge.bronze {
+  background: linear-gradient(135deg, #f5cba7 0%, #ba4a00 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(186, 74, 0, 0.4);
+}
+
+.podium-block {
+  width: 100%;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.podium-block.gold {
+  height: 140px;
+  background: linear-gradient(to top, #fef9e7, #fcf3cf);
+  border: 1px solid #f9e79f;
+  border-bottom: none;
+}
+
+.podium-block.silver {
+  height: 110px;
+  background: linear-gradient(to top, #f2f4f4, #eaeded);
+  border: 1px solid #d5dbdb;
+  border-bottom: none;
+}
+
+.podium-block.bronze {
+  height: 85px;
+  background: linear-gradient(to top, #fdf2e9, #fae5d3);
+  border: 1px solid #f5cba7;
+  border-bottom: none;
+}
+
+/* 雷达图样式 */
+.radar-chart-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.radar-grid-line {
+  stroke: #e8e8e8;
+  stroke-width: 1;
+  fill: none;
+}
+
+.radar-grid-line-bold {
+  stroke: #d9d9d9;
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.radar-axis {
+  stroke: #e8e8e8;
+  stroke-width: 1;
+}
+
+.radar-label {
+  font-size: 11px;
+  fill: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
+  cursor: default;
+}
+
+.radar-polygon {
+  stroke-width: 2;
+  fill-opacity: 0.12;
+  transition: all 0.3s ease;
+}
+
+.radar-polygon.highlighted {
+  fill-opacity: 0.35;
+  stroke-width: 3.5;
+}
+
+.radar-polygon.dimmed {
+  fill-opacity: 0.02;
+  stroke-opacity: 0.15;
+}
+
+.radar-point {
+  transition: all 0.3s ease;
+}
+
+.radar-point:hover {
+  r: 5;
+}
+
+/* 单项指标卡片 */
+.indicator-card {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.indicator-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.indicator-title {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 500;
+}
+
+.indicator-champion {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #fa8c16;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.indicator-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.indicator-row:last-child {
+  margin-bottom: 0;
+}
+
+.indicator-bar-container {
+  flex: 1;
+  height: 6px;
+  background-color: #f5f5f5;
+  border-radius: 3px;
+  margin: 0 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.indicator-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.08, 0.82, 0.17, 1);
+}
+
+/* 排行榜表格样式 */
+.leaderboard-table .ant-table-thead > tr > th {
+  background-color: #fafafa !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.leaderboard-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f0f0f0 !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease;
+}
+
+.leaderboard-table .row-rank-1 {
+  background-color: #fffdf0 !important;
+}
+
+.leaderboard-table .row-rank-1:hover td {
+  background-color: #fffbe0 !important;
+}
+
+.leaderboard-table .row-hovered {
+  background-color: #e6f4ff !important;
+}
+
+.leaderboard-table .row-hovered td {
+  background-color: #e6f4ff !important;
+}
+
+/* 排名徽章 */
+.rank-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.rank-badge.rank-1 {
+  background-color: #fadb14;
+  color: #784212;
+  box-shadow: 0 2px 5px rgba(250, 219, 20, 0.4);
+}
+
+.rank-badge.rank-2 {
+  background-color: #d9d9d9;
+  color: #595959;
+  box-shadow: 0 2px 5px rgba(217, 217, 217, 0.4);
+}
+
+.rank-badge.rank-3 {
+  background-color: #ffd591;
+  color: #873800;
+  box-shadow: 0 2px 5px rgba(253, 176, 65, 0.4);
+}
+
+.rank-badge.rank-4 {
+  background-color: #f5f5f5;
+  color: #8c8c8c;
+}
+
+/* 字体与数字 */
+.font-mono-num {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+/* 雷达图图例 */
+.radar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.radar-legend-item:hover {
+  background-color: #f0f0f0;
+}
+
+.radar-legend-item.active {
+  background-color: #e6f4ff;
+  font-weight: 600;
+}
+
+/* 诊断雷达图 */
+.diagnostic-trend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}

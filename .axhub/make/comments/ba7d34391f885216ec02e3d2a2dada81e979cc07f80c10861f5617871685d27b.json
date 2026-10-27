@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 3,
+  "kind": "prototype-edit-comments",
+  "resource": {
+    "id": "auto-entry-config-form",
+    "targetPath": "prototypes/auto-entry-config-form",
+    "filePath": ".axhub/make/comments/ba7d34391f885216ec02e3d2a2dada81e979cc07f80c10861f5617871685d27b.json"
+  },
+  "comments": [
+    {
+      "label": "button(\"全部\")",
+      "locator": {
+        "selectors": [
+          ".is-active",
+          ".ae-tab.is-active",
+          "body > div > div > header > nav > button:nth-of-type(1)",
+          "#root div > header > nav > button:nth-of-type(1)"
+        ],
+        "fingerprint": "button|class=ae-tab.is-active|text=全部",
+        "path": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "marker": {
+        "clientX": 1428.666748046875,
+        "clientY": 37,
+        "documentX": 1428.666748046875,
+        "documentY": 37,
+        "xPercent": 79.90306197130174,
+        "y": 37,
+        "isFixed": false,
+        "offsetX": 30.666748046875,
+        "offsetY": 37,
+        "dirtySince": 1788850521764
+      },
+      "id": "afbd5745-ba7c-4619-a50b-84a08fa4e04d",
+      "state": "idle",
+      "comment": "前端进行分类筛选",
+      "pageScope": "/prototypes/auto-entry-config-form",
+      "provider": null,
+      "requestId": null,
+      "sessionId": null,
+      "updatedAt": null,
+      "message": null,
+      "code": null
+    }
+  ],
+  "images": []
+}

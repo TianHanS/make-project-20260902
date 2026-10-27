@@ -1,0 +1,13 @@
+{
+  "documentVersion": 1,
+  "format": "axhub-annotation-source",
+  "data": {
+    "version": 2,
+    "prototypeName": "auto-entry-config-form",
+    "pageId": "auto-entry-config-form",
+    "nodes": [],
+    "updatedAt": 1789434592407
+  },
+  "markdownMap": {},
+  "assetMap": {}
+}

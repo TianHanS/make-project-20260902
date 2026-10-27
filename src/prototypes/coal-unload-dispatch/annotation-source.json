@@ -1,0 +1,88 @@
+{
+  "documentVersion": 1,
+  "format": "axhub-annotation-source",
+  "data": {
+    "version": 2,
+    "prototypeName": "coal-unload-dispatch",
+    "pageId": "coal-unload-dispatch",
+    "nodes": [
+      {
+        "id": "annotation-1",
+        "index": 1,
+        "locator": {
+          "selectors": [
+            "div:nth-of-type(2) > div > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div > div"
+          ],
+          "fingerprint": "div",
+          "path": [
+            {
+              "tag": "div",
+              "index": 1
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 1
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            }
+          ]
+        },
+        "aiPrompt": "",
+        "annotationText": "",
+        "hasMarkdown": true,
+        "color": "#1677FF",
+        "images": [],
+        "pageId": "mine-unload",
+        "createdAt": 1788831607374,
+        "updatedAt": 1788831607374
+      }
+    ],
+    "updatedAt": 1788831607374
+  },
+  "markdownMap": {
+    "annotation-1": "新增来煤日期，必填字段，默认带入外部的筛选条件的来煤日期，可编辑今日及今日以后的日期"
+  },
+  "assetMap": {},
+  "directory": {
+    "nodes": [
+      {
+        "type": "folder",
+        "id": "directory-pages",
+        "title": "页面",
+        "defaultExpanded": true,
+        "children": [
+          {
+            "type": "route",
+            "id": "route-unload-point",
+            "title": "卸煤点管理",
+            "route": "unload-point"
+          },
+          {
+            "type": "route",
+            "id": "route-mine-unload",
+            "title": "矿点卸煤管理",
+            "route": "mine-unload"
+          }
+        ]
+      }
+    ]
+  }
+}

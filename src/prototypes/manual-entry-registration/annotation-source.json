@@ -1,0 +1,136 @@
+{
+  "documentVersion": 1,
+  "format": "axhub-annotation-source",
+  "data": {
+    "version": 2,
+    "prototypeName": "manual-entry-registration",
+    "pageId": "manual-entry-registration",
+    "nodes": [
+      {
+        "id": "annotation-1",
+        "index": 1,
+        "locator": {
+          "selectors": [
+            "div > div > header > div > div > div"
+          ],
+          "fingerprint": "div",
+          "path": [
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "header",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            }
+          ]
+        },
+        "aiPrompt": "",
+        "annotationText": "",
+        "hasMarkdown": true,
+        "color": "#1677FF",
+        "images": [],
+        "createdAt": 1788831490129,
+        "updatedAt": 1788831490129
+      },
+      {
+        "id": "annotation-2",
+        "index": 2,
+        "locator": {
+          "selectors": [
+            ".mer-context-bar",
+            "div > div > header"
+          ],
+          "fingerprint": "header",
+          "path": [
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "header",
+              "index": 0
+            }
+          ]
+        },
+        "aiPrompt": "",
+        "annotationText": "",
+        "hasMarkdown": true,
+        "color": "#1677FF",
+        "images": [],
+        "createdAt": 1788831518955,
+        "updatedAt": 1788831518955
+      },
+      {
+        "id": "annotation-3",
+        "index": 3,
+        "locator": {
+          "selectors": [
+            "div > div > section:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+          ],
+          "fingerprint": "button",
+          "path": [
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "section",
+              "index": 0
+            },
+            {
+              "tag": "div",
+              "index": 2
+            },
+            {
+              "tag": "div",
+              "index": 0
+            },
+            {
+              "tag": "button",
+              "index": 0
+            }
+          ]
+        },
+        "aiPrompt": "",
+        "annotationText": "",
+        "hasMarkdown": true,
+        "color": "#1677FF",
+        "images": [],
+        "createdAt": 1788831539572,
+        "updatedAt": 1788831539572
+      }
+    ],
+    "updatedAt": 1788831539572
+  },
+  "markdownMap": {
+    "annotation-1": "前端缓存，记住当前用户进入的默认入厂模块",
+    "annotation-2": "通过菜单权限管理，目前仅支持来煤登记功能",
+    "annotation-3": "所有操作按钮通过权限进行配置"
+  },
+  "assetMap": {}
+}

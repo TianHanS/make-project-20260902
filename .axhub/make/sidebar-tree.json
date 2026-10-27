@@ -1,12 +1,132 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T09:50:56.911Z",
+  "updatedAt": "2026-10-27T01:48:25.140Z",
   "prototypes": [
     {
-      "id": "item-prototypes-coal-unload-dispatch",
-      "kind": "item",
-      "title": "coal unload dispatch",
-      "itemKey": "prototypes/coal-unload-dispatch"
+      "id": "folder-1793065659523-qq5hko",
+      "kind": "folder",
+      "title": "2026Q4S2",
+      "children": [
+        {
+          "id": "item:prototypes:auto-entry-monitor",
+          "kind": "item",
+          "title": "自动入厂监测",
+          "itemKey": "prototypes/auto-entry-monitor"
+        },
+        {
+          "id": "item:prototypes:auto-entry-config-form",
+          "kind": "item",
+          "title": "自动化配置",
+          "itemKey": "prototypes/auto-entry-config-form"
+        },
+        {
+          "id": "item:prototypes:manual-entry-registration",
+          "kind": "item",
+          "title": "人工入厂登记",
+          "itemKey": "prototypes/manual-entry-registration"
+        }
+      ]
+    },
+    {
+      "id": "folder-1791622895380-10qjz2",
+      "kind": "folder",
+      "title": "2604S1 沙洲",
+      "children": [
+        {
+          "id": "item:prototypes:coal-arrival-forecast",
+          "kind": "item",
+          "title": "来煤预报查询",
+          "itemKey": "prototypes/coal-arrival-forecast"
+        },
+        {
+          "id": "item:prototypes:coal-loading-bill-management",
+          "kind": "item",
+          "title": "上煤单管理",
+          "itemKey": "prototypes/coal-loading-bill-management"
+        },
+        {
+          "id": "item:prototypes:coal-storage-structure-management",
+          "kind": "item",
+          "title": "存煤结构管理",
+          "itemKey": "prototypes/coal-storage-structure-management"
+        },
+        {
+          "id": "item:prototypes:coal-yard-log-query",
+          "kind": "item",
+          "title": "煤场日志查询",
+          "itemKey": "prototypes/coal-yard-log-query"
+        },
+        {
+          "id": "folder-stat-reports",
+          "kind": "folder",
+          "title": "统计报表",
+          "children": [
+            {
+              "id": "item:prototypes:fuel-handling-shift-report",
+              "kind": "item",
+              "title": "燃运值班报表",
+              "itemKey": "prototypes/fuel-handling-shift-report"
+            },
+            {
+              "id": "item:prototypes:fuel-handling-shift-competition",
+              "kind": "item",
+              "title": "燃运班值小指标竞赛统计",
+              "itemKey": "prototypes/fuel-handling-shift-competition"
+            },
+            {
+              "id": "item:prototypes:team-duty-monthly-competition",
+              "kind": "item",
+              "title": "班值月度竞赛统计",
+              "itemKey": "prototypes/team-duty-monthly-competition"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "folder-1789026630310-cra8h3",
+      "kind": "folder",
+      "title": "S7迭代",
+      "children": [
+        {
+          "id": "item:prototypes:video-device-management",
+          "kind": "item",
+          "title": "视频设备管理",
+          "itemKey": "prototypes/video-device-management"
+        }
+      ]
+    },
+    {
+      "id": "folder-1788829615387-1uuoxm",
+      "kind": "folder",
+      "title": "S6迭代&阳城电厂",
+      "children": [
+        {
+          "id": "item:prototypes:video-permission",
+          "kind": "item",
+          "title": "视频权限设置",
+          "itemKey": "prototypes/video-permission"
+        },
+        {
+          "id": "item:prototypes:coal-unload-dispatch",
+          "kind": "item",
+          "title": "卸煤调度管理",
+          "itemKey": "prototypes/coal-unload-dispatch"
+        },
+        {
+          "id": "folder-1788829876648-wbbk65",
+          "kind": "folder",
+          "title": "其他",
+          "children": [
+            {
+              "id": "item:prototypes:auto-entry-config",
+              "kind": "item",
+              "title": "自动入厂流程配置",
+              "itemKey": "prototypes/auto-entry-config"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "item:prototypes:annotation-demo",

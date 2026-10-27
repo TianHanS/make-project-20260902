@@ -94,11 +94,13 @@ export function Switch({
   checked,
   checkedChildren,
   unCheckedChildren,
+  disabled = false,
   onChange,
 }: {
   checked: boolean;
   checkedChildren?: React.ReactNode;
   unCheckedChildren?: React.ReactNode;
+  disabled?: boolean;
   onChange: (checked: boolean) => void;
 }) {
   return (
@@ -106,12 +108,38 @@ export function Switch({
       type="button"
       role="switch"
       aria-checked={checked}
-      className={`aem-switch ${checked ? 'on' : 'off'}`}
-      onClick={() => onChange(!checked)}
+      disabled={disabled}
+      className={`aem-switch ${checked ? 'on' : 'off'} ${disabled ? 'disabled' : ''}`.trim()}
+      onClick={() => {
+        if (disabled) return;
+        onChange(!checked);
+      }}
     >
       <span className="aem-switch-knob" />
       <span className="aem-switch-text">{checked ? checkedChildren : unCheckedChildren}</span>
     </button>
+  );
+}
+
+/* ---------------- Tooltip（禁用态悬停提示） ---------------- */
+export function Tooltip({
+  title,
+  disabled = false,
+  children,
+}: {
+  title: string;
+  /** 为 true 时才展示提示（如无权限禁用态） */
+  disabled?: boolean;
+  children: React.ReactElement;
+}) {
+  if (!disabled || !title) return children;
+  return (
+    <span className="aem-tooltip-wrap" title={title} data-tip={title}>
+      {children}
+      <span className="aem-tooltip-bubble" role="tooltip">
+        {title}
+      </span>
+    </span>
   );
 }
 

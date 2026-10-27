@@ -68,6 +68,9 @@ import {
   type OperationKey,
 } from './data';
 import { applyPlan, isYunyiFresh, parseYunyi, type YunyiPayload } from './parse';
+import { AnnotationViewer, type AnnotationSourceDocument } from '@axhub/annotation';
+import annotationSourceDocument from './annotation-source.json';
+
 
 interface FormValues {
   plate?: string;
@@ -571,136 +574,161 @@ const Component: React.FC = () => {
   const moduleTitle = MODULE_LABELS[moduleCode];
 
   return (
-    <div className="mer-root">
-      <MessageHost />
-      <header className="mer-context-bar">
-        <div className="mer-context-site">
-          <span className="mer-site-label">入厂点</span>
-          <Select
-            className="mer-site-dropdown"
-            value={siteId}
-            options={SITES.map((s) => ({ value: s.id, label: s.name }))}
-            onChange={(id) => {
-              if (id) handleSiteChange(id);
-            }}
-          />
-        </div>
-        <ModuleNav
-          menus={permittedModules}
-          active={moduleCode}
-          onChange={(code) => {
-            setModuleCode(code);
-            setValues(emptyForm());
-          }}
-        />
-        {isCoalEntry && showOp('OPERATION_yunYiCodeAuto') && (
-          <Popconfirm
-            title="确认启用读码自动登记模式？"
-            description={
-              <div className="mer-auto-confirm-desc">
-                请保持页面置顶，收起浏览器、操作键盘或可通过鼠标点击退出扫码自动登记识别模式
-                <div className="mer-auto-confirm-mode">
-                  当前配置：
-                  {site.GOABLE_AotoYunYiRegister === 'preEnter' ? '预入厂登记' : '入厂登记'}
-                  （GOABLE_AotoYunYiRegister）
+    <>
+      <div className="mer-root">
+            <MessageHost />
+            <header className="mer-context-bar">
+              <div className="mer-context-site">
+                <span className="mer-site-label">入厂点</span>
+                <Select
+                  className="mer-site-dropdown"
+                  value={siteId}
+                  options={SITES.map((s) => ({ value: s.id, label: s.name }))}
+                  onChange={(id) => {
+                    if (id) handleSiteChange(id);
+                  }}
+                />
+              </div>
+              <ModuleNav
+                menus={permittedModules}
+                active={moduleCode}
+                onChange={(code) => {
+                  setModuleCode(code);
+                  setValues(emptyForm());
+                }}
+              />
+              {isCoalEntry && showOp('OPERATION_yunYiCodeAuto') && (
+                <Popconfirm
+                  title="确认启用读码自动登记模式？"
+                  description={
+                    <div className="mer-auto-confirm-desc">
+                      请保持页面置顶，收起浏览器、操作键盘或可通过鼠标点击退出扫码自动登记识别模式
+                      <div className="mer-auto-confirm-mode">
+                        当前配置：
+                        {site.GOABLE_AotoYunYiRegister === 'preEnter' ? '预入厂登记' : '入厂登记'}
+                        （GOABLE_AotoYunYiRegister）
+                      </div>
+                    </div>
+                  }
+                  okText="确认启用"
+                  cancelText="取消"
+                  onConfirm={() => setYunyiAutoOpen(true)}
+                >
+                  <Button
+                    type="primary"
+                    ghost
+                    icon={<ThunderboltOutlined />}
+                    className="mer-auto-tag"
+                  >
+                    云驿自动模式
+                  </Button>
+                </Popconfirm>
+              )}
+            </header>
+      
+            <section className="mer-card mer-form-card">
+              <div className="mer-card-hd">
+                <div className="mer-card-title">
+                  <h2>{moduleTitle}</h2>
+                  <Tag color="processing" className="mer-current-site">
+                    {site.name}
+                  </Tag>
                 </div>
-              </div>
-            }
-            okText="确认启用"
-            cancelText="取消"
-            onConfirm={() => setYunyiAutoOpen(true)}
-          >
-            <Button
-              type="primary"
-              ghost
-              icon={<ThunderboltOutlined />}
-              className="mer-auto-tag"
-            >
-              云驿自动模式
-            </Button>
-          </Popconfirm>
-        )}
-      </header>
-
-      <section className="mer-card mer-form-card">
-        <div className="mer-card-hd">
-          <div className="mer-card-title">
-            <h2>{moduleTitle}</h2>
-            <Tag color="processing" className="mer-current-site">
-              {site.name}
-            </Tag>
-          </div>
-          {isCoalEntry && (
-            <div className="mer-card-actions">
-              <span className="mer-action-group-label">数据获取</span>
-              <div className="mer-action-group">
-                {showOp('OPERATION_manualSelectPlan') && (
-                  <Button icon={<PlusSquareOutlined />} onClick={() => setPlanOpen(true)}>
-                    人工选择计划
-                  </Button>
-                )}
-                {showOp('OPERATION_planCode') && (
-                  <Button icon={<QrcodeOutlined />} onClick={() => setPlanScanOpen(true)}>
-                    计划码扫码
-                  </Button>
-                )}
-                {showOp('OPERATION_yunYiCode') && (
-                  <Button icon={<ScanOutlined />} onClick={() => setYunyiOpen(true)}>
-                    云驿扫码
-                  </Button>
-                )}
-                {showOp('OPERATION_cardNo1Search') && (
-                  <Button icon={<CreditCardOutlined />} onClick={() => setCardSearchOpen(true)}>
-                    煤样卡查询
-                  </Button>
+                {isCoalEntry && (
+                  <div className="mer-card-actions">
+                    <span className="mer-action-group-label">数据获取</span>
+                    <div className="mer-action-group">
+                      {showOp('OPERATION_manualSelectPlan') && (
+                        <Button icon={<PlusSquareOutlined />} onClick={() => setPlanOpen(true)}>
+                          人工选择计划
+                        </Button>
+                      )}
+                      {showOp('OPERATION_planCode') && (
+                        <Button icon={<QrcodeOutlined />} onClick={() => setPlanScanOpen(true)}>
+                          计划码扫码
+                        </Button>
+                      )}
+                      {showOp('OPERATION_yunYiCode') && (
+                        <Button icon={<ScanOutlined />} onClick={() => setYunyiOpen(true)}>
+                          云驿扫码
+                        </Button>
+                      )}
+                      {showOp('OPERATION_cardNo1Search') && (
+                        <Button icon={<CreditCardOutlined />} onClick={() => setCardSearchOpen(true)}>
+                          煤样卡查询
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-        {renderModuleBody()}
-      </section>
-
-      {isCoalEntry && (
-        <section className="mer-card mer-list-card">
-          <div className="mer-card-hd">
-            <h2>入厂车辆列表</h2>
-            <span className="mer-list-count">共 {filteredRecords.length} 条 · 按入厂时间倒序</span>
-          </div>
-          <div className="mer-list-body" ref={listBodyRef}>
-            <Table
-              rowKey="id"
-              size="small"
-              columns={columns}
-              dataSource={filteredRecords}
-              pagination={false}
-              scroll={{ x: 1280, y: tableY }}
+              {renderModuleBody()}
+            </section>
+      
+            {isCoalEntry && (
+              <section className="mer-card mer-list-card">
+                <div className="mer-card-hd">
+                  <h2>入厂车辆列表</h2>
+                  <span className="mer-list-count">共 {filteredRecords.length} 条 · 按入厂时间倒序</span>
+                </div>
+                <div className="mer-list-body" ref={listBodyRef}>
+                  <Table
+                    rowKey="id"
+                    size="small"
+                    columns={columns}
+                    dataSource={filteredRecords}
+                    pagination={false}
+                    scroll={{ x: 1280, y: tableY }}
+                  />
+                </div>
+              </section>
+            )}
+      
+            <PlanSelectDrawer open={planOpen} onClose={() => setPlanOpen(false)} onPick={handlePlanPick} />
+            <YunyiScanModal open={yunyiOpen} onClose={() => setYunyiOpen(false)} onSuccess={handleYunyiScan} />
+            <YunyiAutoDrawer
+              open={yunyiAutoOpen}
+              site={site}
+              onClose={() => setYunyiAutoOpen(false)}
+              onRegistered={handleYunyiAutoRegistered}
             />
+            <PlanScanModal
+              open={planScanOpen}
+              onClose={() => setPlanScanOpen(false)}
+              onSubmit={handlePlanScan}
+            />
+            <CardSearchDrawer open={cardSearchOpen} onClose={() => setCardSearchOpen(false)} />
+      
+            {submitting && (
+              <div className="mer-global-spin">
+                <Spin tip="正在提交登记…" />
+              </div>
+            )}
           </div>
-        </section>
-      )}
-
-      <PlanSelectDrawer open={planOpen} onClose={() => setPlanOpen(false)} onPick={handlePlanPick} />
-      <YunyiScanModal open={yunyiOpen} onClose={() => setYunyiOpen(false)} onSuccess={handleYunyiScan} />
-      <YunyiAutoDrawer
-        open={yunyiAutoOpen}
-        site={site}
-        onClose={() => setYunyiAutoOpen(false)}
-        onRegistered={handleYunyiAutoRegistered}
+      <AnnotationViewer
+        source={annotationSourceDocument as unknown as AnnotationSourceDocument}
+        options={{
+          currentPageId: (() => {
+            const hashPageId = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('page');
+            const searchPageId = new URLSearchParams(window.location.search.replace(/^\?/, '')).get('page');
+            const pageId = hashPageId || searchPageId;
+            return typeof pageId === 'string' && /^[a-z0-9-]+$/u.test(pageId)
+              ? pageId
+              : "manual-entry-registration";
+          })(),
+          onDirectoryRoute: (node) => {
+            if (typeof node.route === 'string' && /^[a-z0-9-]+$/u.test(node.route)) {
+              window.location.hash = `page=${node.route}`;
+            }
+          },
+          toolbarEdge: 'right',
+          showToolbar: true,
+          showThemeToggle: true,
+          showColorFilter: true,
+          emptyWhenNoData: true,
+        }}
       />
-      <PlanScanModal
-        open={planScanOpen}
-        onClose={() => setPlanScanOpen(false)}
-        onSubmit={handlePlanScan}
-      />
-      <CardSearchDrawer open={cardSearchOpen} onClose={() => setCardSearchOpen(false)} />
-
-      {submitting && (
-        <div className="mer-global-spin">
-          <Spin tip="正在提交登记…" />
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

@@ -1001,8 +1001,17 @@ body,
     color: #fff;
     font-weight: 500;
 }
-.cd-datepicker-cell.is-selected:hover {
-    background: var(--cd-primary-active);
+.cd-datepicker-cell.is-disabled {
+    color: var(--cd-text-disabled);
+    cursor: not-allowed;
+    background: transparent;
+}
+.cd-datepicker-cell.is-disabled:hover {
+    background: transparent;
+}
+.cd-datepicker-footer button:disabled {
+    color: var(--cd-text-disabled);
+    cursor: not-allowed;
 }
 .cd-datepicker-footer {
     margin-top: 8px;
@@ -1357,6 +1366,12 @@ body,
     font-size: 14px;
     color: var(--cd-text-secondary);
     line-height: 1.7;
+}
+
+.cd-match-date-value {
+    font-weight: 600;
+    color: var(--cd-primary);
+    letter-spacing: 0.02em;
 }
 
 .cd-match-sec {

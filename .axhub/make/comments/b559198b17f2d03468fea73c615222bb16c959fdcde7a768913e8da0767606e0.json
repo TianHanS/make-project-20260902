@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "kind": "document-edit-comments",
+  "resource": {
+    "id": "b559198b17f2d03468fea73c615222bb16c959fdcde7a768913e8da0767606e0",
+    "targetPath": "src/resources/camera-maintenance/requirements.md",
+    "filePath": ".axhub/make/comments/b559198b17f2d03468fea73c615222bb16c959fdcde7a768913e8da0767606e0.json"
+  },
+  "comments": [],
+  "images": [],
+  "documentPath": "src/resources/camera-maintenance/requirements.md"
+}

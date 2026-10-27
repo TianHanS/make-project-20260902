@@ -275,11 +275,14 @@ export function DatePicker({
     onChange,
     placeholder = '请选择日期',
     style,
+    minDate,
 }: {
     value: string;
     onChange: (v: string) => void;
     placeholder?: string;
     style?: React.CSSProperties;
+    /** 可选最早日期 YYYY-MM-DD（含），早于此日不可选 */
+    minDate?: string;
 }) {
     const [open, setOpen] = useState(false);
     const base = parseLocalDate(value) || new Date();
@@ -297,13 +300,33 @@ export function DatePicker({
     ];
     while (cells.length % 7 !== 0) cells.push(null);
 
+    const toValue = (y: number, m: number, day: number) =>
+        `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    const isDisabledDay = (y: number, m: number, day: number) => {
+        if (!minDate) return false;
+        return toValue(y, m, day) < minDate;
+    };
+
     const selectDay = (day: number) => {
-        const d = new Date(year, month, day);
-        onChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+        if (isDisabledDay(year, month, day)) return;
+        onChange(toValue(year, month, day));
+        setOpen(false);
+    };
+
+    const selectToday = () => {
+        const now = new Date();
+        const todayStr = toValue(now.getFullYear(), now.getMonth(), now.getDate());
+        const pick = minDate && todayStr < minDate ? minDate : todayStr;
+        if (minDate && pick < minDate) return;
+        onChange(pick);
+        const [y, m] = pick.split('-').map(Number);
+        setView(monthStart(new Date(y, m - 1, 1)));
         setOpen(false);
     };
 
     const selectedDate = parseLocalDate(value);
+    const todayDisabled = !!minDate && toValue(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()) < minDate;
 
     return (
         <div className="cd-datepicker" ref={ref} style={style}>
@@ -339,6 +362,7 @@ export function DatePicker({
                     <div className="cd-datepicker-grid">
                         {cells.map((day, i) => {
                             if (day == null) return <span key={i} className="cd-datepicker-cell is-empty" />;
+                            const disabled = isDisabledDay(year, month, day);
                             const isSelected =
                                 !!selectedDate &&
                                 selectedDate.getFullYear() === year &&
@@ -351,8 +375,9 @@ export function DatePicker({
                             return (
                                 <span
                                     key={i}
-                                    className={`cd-datepicker-cell${isSelected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}`}
+                                    className={`cd-datepicker-cell${isSelected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}${disabled ? ' is-disabled' : ''}`}
                                     onClick={() => selectDay(day)}
+                                    aria-disabled={disabled}
                                 >
                                     {day}
                                 </span>
@@ -360,7 +385,7 @@ export function DatePicker({
                         })}
                     </div>
                     <div className="cd-datepicker-footer">
-                        <button type="button" onClick={() => selectDay(new Date().getDate())}>
+                        <button type="button" onClick={selectToday} disabled={todayDisabled}>
                             今天
                         </button>
                     </div>
@@ -401,6 +426,7 @@ export function Input({
     maxLength,
     disabled = false,
     onFocus,
+    onKeyDown,
     className = '',
 }: {
     value: string;
@@ -409,6 +435,7 @@ export function Input({
     maxLength?: number;
     disabled?: boolean;
     onFocus?: () => void;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     className?: string;
 }) {
     return (
@@ -420,6 +447,7 @@ export function Input({
             placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
             onFocus={onFocus}
+            onKeyDown={onKeyDown}
         />
     );
 }

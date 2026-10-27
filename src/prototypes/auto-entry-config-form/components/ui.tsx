@@ -106,7 +106,9 @@ export function Modal({
     width = 480,
     children,
     closable = true,
-    maskClosable = true,
+    maskClosable = false,
+    /** 叠在抽屉之上（二次确认等场景） */
+    stacked = false,
 }: {
     open: boolean;
     title: React.ReactNode;
@@ -116,11 +118,12 @@ export function Modal({
     children: React.ReactNode;
     closable?: boolean;
     maskClosable?: boolean;
+    stacked?: boolean;
 }) {
     if (!open) return null;
     return createPortal(
         <div
-            className="ae-overlay"
+            className={`ae-overlay${stacked ? ' is-stacked' : ''}`}
             onMouseDown={(e) => {
                 if (maskClosable && e.target === e.currentTarget) onClose();
             }}
@@ -151,7 +154,8 @@ export function Drawer({
     width = 480,
     children,
     nested = false,
-    maskClosable = true,
+    maskClosable = false,
+    bodyClassName,
 }: {
     open: boolean;
     title: React.ReactNode;
@@ -161,6 +165,7 @@ export function Drawer({
     children: React.ReactNode;
     nested?: boolean;
     maskClosable?: boolean;
+    bodyClassName?: string;
 }) {
     if (!open) return null;
     return createPortal(
@@ -177,7 +182,7 @@ export function Drawer({
                         <X size={16} />
                     </button>
                 </div>
-                <div className="ae-drawer-body">{children}</div>
+                <div className={`ae-drawer-body${bodyClassName ? ` ${bodyClassName}` : ''}`}>{children}</div>
                 {footer != null ? <div className="ae-drawer-foot">{footer}</div> : null}
             </div>
         </div>,
@@ -252,6 +257,93 @@ export function Select({
                             {o.value === value ? <Check size={14} className="ae-select-check" /> : null}
                         </div>
                     ))}
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+/* ---------------- MultiSelect ---------------- */
+export function MultiSelect({
+    value,
+    options,
+    onChange,
+    placeholder = '请选择',
+    disabled = false,
+    style,
+}: {
+    value: string[];
+    options: SelectOption[];
+    onChange: (v: string[]) => void;
+    placeholder?: string;
+    disabled?: boolean;
+    style?: React.CSSProperties;
+}) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+    useClickOutside(ref, () => setOpen(false));
+    const selected = options.filter((o) => value.includes(o.value));
+    const summary =
+        selected.length === 0
+            ? null
+            : selected.length <= 2
+              ? selected.map((o) => o.label).join('、')
+              : `已选 ${selected.length} 项`;
+
+    const toggle = (v: string) => {
+        if (value.includes(v)) onChange(value.filter((item) => item !== v));
+        else onChange([...value, v]);
+    };
+
+    return (
+        <div className="ae-select-wrap" ref={ref} style={style}>
+            <div
+                className={`ae-select ae-select-multi${open ? ' is-open' : ''}${disabled ? ' is-disabled' : ''}`}
+                onClick={() => !disabled && setOpen((o) => !o)}
+            >
+                {selected.length > 0 ? (
+                    <span className="ae-select-tags">
+                        {selected.map((o) => (
+                            <span
+                                key={o.value}
+                                className="ae-select-tag"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!disabled) toggle(o.value);
+                                }}
+                            >
+                                {o.label}
+                                <X size={12} />
+                            </span>
+                        ))}
+                    </span>
+                ) : (
+                    <span className="ae-select-placeholder">{placeholder}</span>
+                )}
+                <ChevronDown size={14} className="ae-select-arrow" />
+            </div>
+            {open ? (
+                <div className="ae-select-dropdown">
+                    {options.map((o) => {
+                        const checked = value.includes(o.value);
+                        return (
+                            <div
+                                key={o.value}
+                                className={`ae-select-option${checked ? ' is-selected' : ''}${o.disabled ? ' is-disabled' : ''}`}
+                                onClick={() => {
+                                    if (!o.disabled) toggle(o.value);
+                                }}
+                            >
+                                <span className="ae-select-option-main">
+                                    <span className={`ae-cb-box${checked ? ' is-checked' : ''}`}>
+                                        {checked ? <Check size={11} /> : null}
+                                    </span>
+                                    <span className="ae-select-option-label">{o.label}</span>
+                                </span>
+                            </div>
+                        );
+                    })}
+                    {summary ? <div className="ae-select-multi-hint">{summary}</div> : null}
                 </div>
             ) : null}
         </div>
@@ -374,15 +466,49 @@ export function DatePicker({
     );
 }
 
+/* ---------------- Switch ---------------- */
+export function Switch({
+    checked,
+    checkedChildren = '启用',
+    unCheckedChildren = '禁用',
+    onChange,
+    disabled = false,
+}: {
+    checked: boolean;
+    checkedChildren?: React.ReactNode;
+    unCheckedChildren?: React.ReactNode;
+    onChange: (checked: boolean) => void;
+    disabled?: boolean;
+}) {
+    return (
+        <button
+            type="button"
+            role="switch"
+            aria-checked={checked}
+            disabled={disabled}
+            className={`ae-switch${checked ? ' is-on' : ' is-off'}${disabled ? ' is-disabled' : ''}`}
+            onClick={() => {
+                if (!disabled) onChange(!checked);
+            }}
+        >
+            <span className="ae-switch-knob" />
+            <span className="ae-switch-text">{checked ? checkedChildren : unCheckedChildren}</span>
+        </button>
+    );
+}
+
 /* ---------------- 表单控件 ---------------- */
 export function Field({
     label,
     required = false,
+    hint,
     extra,
     children,
 }: {
     label: React.ReactNode;
     required?: boolean;
+    /** 配置项说明，显示在标签下方单独一行 */
+    hint?: React.ReactNode;
     extra?: React.ReactNode;
     children: React.ReactNode;
 }) {
@@ -392,6 +518,7 @@ export function Field({
                 {required ? <span className="ae-field-required">*</span> : null}
                 {label}
             </label>
+            {hint ? <div className="ae-field-hint">{hint}</div> : null}
             <div className="ae-field-control">{children}</div>
             {extra ? <div className="ae-field-extra">{extra}</div> : null}
         </div>

@@ -1,0 +1,968 @@
+@import "tailwindcss";
+
+/*
+ * 煤场存煤结构管理
+ * 设计意图：浅色测量台 —— 页头是一条刻度栏，存煤结构视图是主舞台。
+ * 页面铬层对齐 antd-new；同一库存煤种同一颜色。深度只用描边。
+ */
+
+.cssm-root {
+  --yard-apron: #f5f5f5;
+  --yard-surface: #ffffff;
+  --yard-inset: #fafafa;
+  --yard-wall: #d9d9d9;
+  --yard-wall-edge: #bfbfbf;
+  --coal-ink: rgba(0, 0, 0, 0.88);
+  --coal-ink-soft: rgba(0, 0, 0, 0.65);
+  --coal-ink-faint: rgba(0, 0, 0, 0.45);
+  --coal-ink-ghost: rgba(0, 0, 0, 0.25);
+  --rule-hair: #f0f0f0;
+  --rule-line: #e8e8e8;
+  --rule-firm: #d9d9d9;
+  --rule-focus: rgba(22, 119, 255, 0.45);
+  --scan-teal: #13c2c2;
+  --stacker-amber: #d48806;
+  --unmarked-flare: #cf1322;
+  --control-accent: #1677ff;
+  --rail-ink: #1c3d5a;
+
+  min-width: 1280px;
+  min-height: 100vh;
+  padding: 14px 18px 20px;
+  background-color: #e8edf2;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0) 140px),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(28, 61, 90, 0.045) 28px
+    );
+  color: var(--coal-ink);
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+}
+
+.cssm-num {
+  font-family: Bahnschrift, "DIN Alternate", "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0.01em;
+}
+
+/* ============================ 页头 ============================ */
+
+.cssm-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  margin-bottom: 12px;
+  padding: 8px 10px 8px 12px;
+  border: 1px solid var(--rule-line);
+  border-left: 3px solid var(--rail-ink);
+  border-radius: 8px;
+  background: var(--yard-surface);
+  overflow-x: auto;
+}
+
+.cssm-head-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.cssm-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-meta b {
+  font-weight: 600;
+  color: var(--coal-ink-soft);
+}
+
+.cssm-head-actions {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+/* 页头读数：刻度栏上的两列数字，不再套灰底标签 */
+.cssm-stats {
+  display: flex;
+  align-items: stretch;
+  flex: 0 0 auto;
+  height: 44px;
+  margin-left: 4px;
+  padding-left: 16px;
+  border-left: 1px solid var(--rule-line);
+  background: transparent;
+}
+
+.cssm-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 112px;
+  margin: 0;
+  padding: 0 20px 0 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.cssm-stat + .cssm-stat {
+  padding-left: 18px;
+  border-left: 1px solid var(--rule-hair);
+}
+
+.cssm-stat.is-action {
+  cursor: pointer;
+}
+
+.cssm-stat.is-action:not(:disabled):hover .cssm-stat-v {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.cssm-stat.is-action:disabled {
+  cursor: default;
+}
+
+.cssm-stat.is-action:focus-visible {
+  outline: 2px solid var(--rule-focus);
+  outline-offset: 2px;
+}
+
+.cssm-stat-k {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-stat.is-action:not(:disabled) .cssm-stat-k::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--unmarked-flare);
+}
+
+.cssm-stat-v {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--rail-ink);
+  animation: cssm-readout 420ms ease both;
+}
+
+.cssm-stat-v em {
+  margin-left: 3px;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--coal-ink-ghost);
+}
+
+.cssm-stat-v.is-flare {
+  color: var(--unmarked-flare);
+}
+
+/* ============================ 主区骨架 ============================ */
+
+.cssm-root.is-bench {
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.cssm-root.is-bench .cssm-head,
+.cssm-root.is-bench .cssm-ledger {
+  flex: 0 0 auto;
+}
+
+.cssm-main {
+  display: grid;
+  grid-template-columns: minmax(0, 3.25fr) minmax(340px, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.cssm-root.is-bench .cssm-main {
+  flex: 0 0 auto;
+  height: calc(100vh - 148px);
+  min-height: 460px;
+}
+
+.cssm-root.is-bench .cssm-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+/* 三种视图共用这一块视口，切换时外框高度不变，内容在内部滚动 */
+.cssm-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.cssm-stage.is-table {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cssm-table-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  padding: 12px 14px 8px;
+  box-sizing: border-box;
+}
+
+.cssm-panel {
+  border: 1px solid var(--rule-line);
+  border-radius: 8px;
+  background: var(--yard-surface);
+  overflow: hidden;
+}
+
+.cssm-panel-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-hair);
+  white-space: nowrap;
+}
+
+.cssm-panel-hd h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.cssm-panel-hd h2::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  flex: 0 0 auto;
+  border-radius: 1px;
+  background: var(--rail-ink);
+}
+
+.cssm-panel-hd h2 em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-panel-body {
+  padding: 12px 14px 14px;
+}
+
+.cssm-fieldbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--rule-hair);
+  background: var(--yard-inset);
+  overflow-x: auto;
+}
+
+.cssm-fieldbar-label {
+  font-size: 11.5px;
+  color: var(--coal-ink-faint);
+}
+
+/* 图例：同一库存煤种同一颜色 */
+.cssm-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--rule-hair);
+  font-size: 11.5px;
+  color: var(--coal-ink-soft);
+  overflow-x: auto;
+}
+
+.cssm-legend-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cssm-legend-swatch {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--rule-line);
+  border-radius: 3px;
+}
+
+/* ============================ 实际堆煤视图 ============================ */
+
+.cssm-stack-view {
+  padding: 6px 8px 12px;
+  background: linear-gradient(180deg, #f7f9fb 0, #ffffff 72px);
+}
+
+.cssm-heatmap-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.cssm-heatmap-inner {
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+  min-width: 100%;
+}
+
+.cssm-heatmap-axis {
+  flex: 0 0 auto;
+  position: sticky;
+  z-index: 2;
+  background: #ffffff;
+}
+
+.cssm-heatmap-axis.is-left {
+  left: 0;
+  border-right: 1px solid var(--rule-line);
+}
+
+.cssm-heatmap-axis.is-right {
+  right: 0;
+  border-left: 1px solid var(--rule-line);
+}
+
+.cssm-heatmap-plot {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cssm-heatmap-wrap svg {
+  display: block;
+}
+
+.cssm-heatmap-wrap.is-wide .cssm-heatmap-plot {
+  flex: 1 1 auto;
+}
+
+.cssm-heatmap-wrap.is-wide .cssm-heatmap-plot svg {
+  width: 100%;
+}
+
+.cssm-hm-layer {
+  cursor: pointer;
+}
+
+.cssm-hm-layer:hover {
+  opacity: 0.84;
+}
+
+.cssm-hm-layer:focus-visible {
+  outline: 2px solid var(--rule-focus);
+}
+
+/* ============================ 分层视图（热力格图） ============================ */
+
+.cssm-matrix-wrap {
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.cssm-matrix {
+  display: grid;
+  min-width: max-content;
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cssm-mcell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 56px;
+  padding: 5px 7px;
+  border-right: 1px solid var(--rule-hair);
+  border-bottom: 1px solid var(--rule-hair);
+  font-size: 11.5px;
+}
+
+.cssm-mcell.is-head {
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  background: var(--yard-inset);
+  font-weight: 650;
+  font-size: 12px;
+}
+
+.cssm-mcell.is-rowhead {
+  align-items: flex-start;
+  background: var(--yard-inset);
+  color: var(--coal-ink-soft);
+  font-weight: 600;
+}
+
+.cssm-mcell-hint {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--coal-ink-ghost);
+}
+
+.cssm-mcell.is-void {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 5px,
+    rgba(0, 0, 0, 0.03) 5px 10px
+  );
+}
+
+.cssm-mcell.is-total {
+  min-height: 32px;
+  background: var(--yard-inset);
+  color: var(--coal-ink-soft);
+  font-weight: 600;
+}
+
+.cssm-mcell.is-layer {
+  cursor: pointer;
+  transition: box-shadow 0.16s ease;
+}
+
+.cssm-mcell.is-layer:hover {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+.cssm-mcell.is-layer.is-active {
+  box-shadow: inset 0 0 0 2px var(--control-accent);
+}
+
+/* 未识别煤层：颜色之外再叠一层横向条纹纹理 */
+.cssm-mcell.is-unmarked {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.22) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.cssm-mcell-v {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cssm-mcell-num {
+  margin-top: 2px;
+  font-size: 10px;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+/* ============================ 煤层信息面板 ============================ */
+
+.cssm-inspector {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 14px;
+  min-width: 340px;
+  max-height: calc(100vh - 28px);
+  overflow: auto;
+}
+
+.cssm-root.is-bench .cssm-inspector {
+  position: static;
+  max-height: none;
+  height: 100%;
+  min-height: 0;
+}
+
+.cssm-ins-swatch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-hair);
+}
+
+.cssm-ins-chip {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: 1px solid var(--rule-firm);
+  border-radius: 4px;
+}
+
+.cssm-ins-chip.is-unmarked {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.35) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.cssm-ins-title {
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.cssm-ins-sub {
+  font-size: 11.5px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-ins-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--rule-hair);
+}
+
+.cssm-ins-cell {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--rule-hair);
+  border-right: 1px solid var(--rule-hair);
+}
+
+.cssm-ins-cell:nth-child(2n) {
+  border-right: none;
+}
+
+.cssm-ins-cell.is-wide {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+
+.cssm-ins-k {
+  font-size: 11px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-ins-v {
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.cssm-ins-v small {
+  margin-left: 2px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--coal-ink-ghost);
+}
+
+/* 入厂登记编号较长，允许换行并略缩字号 */
+.cssm-ins-reg {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.cssm-ins-quality {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-hair);
+  background: var(--yard-inset);
+}
+
+.cssm-ins-quality div {
+  text-align: center;
+}
+
+.cssm-ins-quality span {
+  display: block;
+  font-size: 10px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-ins-quality b {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.cssm-ins-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.cssm-ins-actions .cssm-ins-pair {
+  display: flex;
+  gap: 8px;
+}
+
+.cssm-ins-actions .cssm-ins-pair > * {
+  flex: 1 1 0;
+}
+
+.cssm-ins-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 22px 36px;
+  text-align: center;
+}
+
+.cssm-ins-empty-art {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  height: 72px;
+  margin-bottom: 16px;
+}
+
+.cssm-ins-empty-art i {
+  width: 14px;
+  border-radius: 2px 2px 0 0;
+  background: var(--rule-line);
+}
+
+.cssm-ins-empty-art i:nth-child(1) { background: #7ba0bf; }
+.cssm-ins-empty-art i:nth-child(2) { background: #c08f47; }
+.cssm-ins-empty-art i:nth-child(3) { background: #a76350; }
+.cssm-ins-empty-art i:nth-child(4) { background: #43918f; }
+.cssm-ins-empty-art i:nth-child(5) { background: #7a6f9d; }
+
+.cssm-ins-empty p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-ins-empty p + p {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--coal-ink-ghost);
+}
+
+/* ============================ 底部台账 ============================ */
+
+.cssm-ledger {
+  margin-top: 12px;
+  background: var(--yard-surface);
+  border: 1px solid var(--rule-firm);
+}
+
+.cssm-ledger .ant-tabs-nav {
+  margin-bottom: 0;
+  padding: 0 14px;
+}
+
+.cssm-ledger .ant-tabs-content-holder {
+  padding: 12px 14px 8px;
+}
+
+.cssm-ledger.is-plain {
+  margin-top: 0;
+  border: 0;
+  background: transparent;
+}
+
+.cssm-ledger.is-plain .ant-table-wrapper {
+  padding: 0 14px 8px;
+}
+
+.cssm-ledger-sub {
+  margin: 16px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@keyframes cssm-readout {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cssm-hint {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--coal-ink-faint);
+}
+
+/* ============================ 抽屉 ============================ */
+
+.cssm-drawer-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cssm-config-form .ant-form-item-extra {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-confirm-copy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--coal-ink);
+}
+
+.cssm-confirm-copy div {
+  margin-top: 8px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-form-note {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule-hair);
+  border-left: 3px solid var(--scan-teal);
+  border-radius: 6px;
+  background: var(--yard-inset);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--coal-ink-soft);
+}
+
+.cssm-drawer-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.cssm-drawer-form > div.is-wide,
+.cssm-drawer-form > .cssm-stock-span {
+  grid-column: span 2;
+}
+
+.cssm-stock-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.cssm-stock-error {
+  margin: 6px 0 0;
+  color: #cf1322;
+  font-size: 12px;
+}
+
+.cssm-drawer-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  color: var(--coal-ink-soft);
+}
+
+.cssm-req::before {
+  content: "*";
+  margin-right: 4px;
+  color: var(--unmarked-flare);
+}
+
+.cssm-reg-input {
+  cursor: pointer;
+}
+
+.cssm-reg-input input {
+  cursor: pointer;
+}
+
+.cssm-writeback {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  padding: 2px 0 4px;
+}
+
+.cssm-writeback-k {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-writeback-v {
+  display: block;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--coal-ink);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cssm-drawer-h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.cssm-drawer-h3 span {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-match {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 12px 0;
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cssm-match-cell {
+  padding: 10px 12px;
+  background: var(--yard-surface);
+  border-right: 1px solid var(--rule-hair);
+}
+
+.cssm-match-cell:last-child {
+  border-right: none;
+}
+
+.cssm-match-k {
+  font-size: 11px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-match-v {
+  margin-top: 3px;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.cssm-match-v small {
+  margin-left: 2px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--coal-ink-ghost);
+}
+
+.cssm-match-v.is-ok {
+  color: var(--scan-teal);
+}
+
+.cssm-match-v.is-flare {
+  color: var(--unmarked-flare);
+}
+
+/* 被合并煤层所在行 */
+.cssm-row-absorbed > td {
+  background: #fff1f0;
+}
+
+/* 拆分表格中由系统锁定／联动的角度，与可输入的起始角度形成明确区分 */
+.cssm-locked-angle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--coal-ink-faint);
+}
+
+.cssm-locked-angle em {
+  font-style: normal;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--yard-inset);
+  color: var(--coal-ink-ghost);
+  white-space: nowrap;
+}
+
+.cssm-grid-2 {
+  display: grid;
+  gap: 0 12px;
+}
+
+/* ============================ 响应式 ============================ */
+
+@media (max-width: 1200px) {
+  .cssm-drawer-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .cssm-drawer-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cssm-writeback {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cssm-match {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cssm-root *,
+  .cssm-root *::before,
+  .cssm-root *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
